@@ -36,5 +36,9 @@
             End Get
         End Property
 
+        Protected Sub ResetLabels()
+            _Labels = New List(Of Label)
+        End Sub
     End Class
+
 End Namespace
