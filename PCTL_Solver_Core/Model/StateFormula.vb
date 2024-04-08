@@ -1,3 +1,7 @@
-﻿Public Class StateFormula
+﻿Namespace Core.Model
+    'NOT YET FIGURED OUT
 
-End Class
+    Public Class StateFormula
+
+    End Class
+End Namespace

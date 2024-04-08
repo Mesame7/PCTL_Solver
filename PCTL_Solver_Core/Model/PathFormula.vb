@@ -1,3 +1,5 @@
-﻿Public Class PathFormula
+﻿Namespace Core.Model
+    Public Class PathFormula
 
-End Class
+    End Class
+End Namespace
