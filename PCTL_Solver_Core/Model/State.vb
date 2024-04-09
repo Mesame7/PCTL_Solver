@@ -2,14 +2,15 @@
 
     Public Class State
         Inherits SystemObject
-        Public Sub New(name As String)
+        Public Sub New(name As String, initPr As Double)
             Me.Name = name
+            Me.InitPr = initPr
         End Sub
 
         Private _InitPr As Double
-        Private _Labels As List(Of Label)
+        Private _Labels As New List(Of Label)
 
-        Private _NextBranches As List(Of Branch)
+        Private _NextBranches As New List(Of Branch)
 
 
 

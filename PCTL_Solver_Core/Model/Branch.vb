@@ -21,8 +21,13 @@
             Get
                 Return _P
             End Get
+
             Set(value As Double)
-                Throw New NotImplementedException("Validate First the value")
+                If value > 1 OrElse value <= 0 Then
+                    Throw New NotImplementedException("Validate First the value")
+                Else
+                    Me._P = value
+                End If
             End Set
         End Property
 

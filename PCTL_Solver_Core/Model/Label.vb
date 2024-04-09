@@ -9,7 +9,7 @@
             Me._IsNegated = isNegated
         End Sub
 
-        Public Function CreateLabel(name As String, isNegated As Boolean) As Label
+        Public Shared Function CreateLabel(name As String, isNegated As Boolean) As Label
             Dim existingLabel = _Labels.Where(Function(x) x._Name = name AndAlso x._IsNegated = isNegated).FirstOrDefault
             If existingLabel IsNot Nothing Then
                 Return existingLabel

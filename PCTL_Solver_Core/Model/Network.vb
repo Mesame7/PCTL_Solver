@@ -1,7 +1,7 @@
 ﻿Namespace Core.Model
 
 
-    Public Class System
+    Public Class Network
 
         Private _Name As String
         Private _States As New List(Of State)
