@@ -27,7 +27,12 @@ Module Program
                         userInput = Console.ReadLine()
                         Dim mynetwork = sysManager.CreateNetwork(userInput)
 
-                    Case "my"
+                    Case "eval"
+                        If inputArgs.Length > 1 Then
+                            EvaluatePathFormula(inputArgs.ElementAt(1))
+                        Else
+                            Console.Write("Please specify a file to the network")
+                        End If
 
                 End Select
                 ' Process the user input here (e.g., execute specific commands based on input).
@@ -96,5 +101,15 @@ Module Program
         Dim regex As New Regex(regexPattern)
         Return regex.Split(input)
     End Function
+    Sub EvaluatePathFormula(f As String)
+        If Regex.IsMatch(f, "^\s*\(.*\)\s*$") Then
+
+
+        Else
+            Console.Out.WriteLine("Please make sure you follow the rules for writing a formula")
+        End If
+
+
+    End Sub
 
 End Module

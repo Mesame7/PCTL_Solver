@@ -1,4 +1,4 @@
-﻿Namespace Core.Model
+﻿Namespace Core.Model.Formula
     Public Class PathFormula
 
     End Class
