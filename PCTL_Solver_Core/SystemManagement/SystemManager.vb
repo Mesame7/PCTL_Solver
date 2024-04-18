@@ -83,13 +83,16 @@ Namespace SystemManagement
             Return network.GetStates.Sum(Function(x) x.InitPr) = 1
         End Function
 
+        Public Sub CreateStateFormula(f As String)
+            _ActiveNetwork.AddStateFormula(CreateStateFormulaHelper(f))
+        End Sub
 
-        Public Function CreateStateFormula(f As String) As StateFormula
+        Private Function CreateStateFormulaHelper(f As String) As StateFormula
             f = f.Trim()
             If Regex.IsMatch(f, "^\s*\(.*\)\s*$") Then
                 Dim conj = f.Substring(1, f.Length - 2).Trim
                 If conj.StartsWith("!"c) Then
-                    Return New NegatedStateFormula(_Evaluator, CreateStateFormula(conj.Substring(1)))
+                    Return New NegatedStateFormula(CreateStateFormulaHelper(conj.Substring(1)))
                 ElseIf conj.StartsWith("P>") Then
                     Dim paramsTuple = GetPAndPathFormulaFromFormula(conj)
                     Return New ProbabilityFormula(paramsTuple.Item1, CreatePathFormula(paramsTuple.Item2))
@@ -103,7 +106,7 @@ Namespace SystemManagement
                 Dim conjArray = SplitFormulaIgnoringBrackets(conj)
                 Dim conjFormula = New ConjunctionStateFormula()
                 For Each subFormula In conjArray
-                    conjFormula.AddSubState(CreateStateFormula(subFormula))
+                    conjFormula.AddSubState(CreateStateFormulaHelper(subFormula))
                 Next
                 Return conjFormula
             Else
@@ -113,11 +116,38 @@ Namespace SystemManagement
 
         End Function
         Public Function CreatePathFormula(f As String) As PathFormula
+            f = f.Trim
             If Regex.IsMatch(f, "^\s*\[.*\]\s*$") Then
+                Dim pathFormulaString = f.Substring(1, f.Length - 2).Trim
+                If pathFormulaString.Contains("U<=") Then
+                    Dim stateFomulas = pathFormulaString.Split("U<=")
+                    Dim formParams = GetHopCount(stateFomulas.ElementAt(1))
+                    Return New UntilFiniteFormula(CreateStateFormulaHelper(stateFomulas.ElementAt(0)), CreateStateFormulaHelper(formParams.Item2), formParams.Item1)
+                ElseIf pathFormulaString.Contains("U") Then
+                    Dim stateFomulas = pathFormulaString.Split("U")
+                    Dim pathFormula = New UntilInfiniteFormula(CreateStateFormulaHelper(stateFomulas.ElementAt(0)), CreateStateFormulaHelper(stateFomulas.ElementAt(1)))
+                    Return pathFormula
 
+                ElseIf pathFormulaString.Contains("X") Then
+                    Return New NextFormula(CreateStateFormulaHelper(pathFormulaString.Substring(1)))
+                Else
+                    Return Nothing
+                End If
             Else
                 Throw New Exception($"Issue with {f}")
             End If
+        End Function
+        Private Function GetHopCount(f As String) As Tuple(Of Integer, String)
+            Dim intString As String = ""
+            For Each c In f
+                If c <> "(" AndAlso c <> " " Then
+                    intString += c
+                Else
+                    Exit For
+                End If
+
+            Next
+            Return New Tuple(Of Integer, String)(Integer.Parse(intString), f.Substring(intString.Length))
         End Function
         Private Function GetPAndPathFormulaFromFormula(f As String) As Tuple(Of Double, String)
             f = f.Substring(2)
@@ -125,6 +155,8 @@ Namespace SystemManagement
             For Each c In f
                 If c <> "[" Then
                     doubleString += c
+                Else
+                    Exit For
                 End If
             Next
             Dim pathForm = f.Substring(doubleString.Length)
@@ -135,9 +167,31 @@ Namespace SystemManagement
             End If
         End Function
         Function SplitFormulaIgnoringBrackets(input As String) As String()
-            Dim regexPattern As String = "\^(?![^\(]*\))"
-            Dim regex As New Regex(regexPattern)
-            Return regex.Split(input)
+            Dim outArray = New List(Of String)
+            Dim totalBrackets = 0
+            Dim indexArray = New List(Of Integer)
+            Dim i = 0
+            While i < input.Length
+                Dim c = input.ElementAt(i)
+                If c = "(" Then
+                    totalBrackets += 1
+                ElseIf c = ")" Then
+                    totalBrackets -= 1
+                ElseIf c = "^" AndAlso totalBrackets = 0 Then
+                    indexArray.Add(i)
+                End If
+                i += 1
+            End While
+            Dim startIndex As Integer = 0
+            For Each index As Integer In indexArray
+                Dim substring As String = input.Substring(startIndex, index - startIndex)
+                outArray.Add(substring)
+                startIndex = index + 1
+            Next
+
+            Dim lastSubstring As String = input.Substring(startIndex + 1)
+            outArray.Add(lastSubstring)
+            Return outArray.ToArray
         End Function
     End Class
 End Namespace

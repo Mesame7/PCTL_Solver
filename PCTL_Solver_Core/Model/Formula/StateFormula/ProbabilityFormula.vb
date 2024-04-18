@@ -5,7 +5,8 @@
         Private _PathFormula As PathFormula
         Private _P As Double
         Public Sub New(p As Double, path As PathFormula)
-
+            Me._P = p
+            Me._PathFormula = path
         End Sub
         Public ReadOnly Property PathFormula As PathFormula
             Get

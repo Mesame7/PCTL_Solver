@@ -2,8 +2,8 @@
 
     Public Class NextFormula
         Inherits PathFormula
-        Public Sub New()
-
+        Public Sub New(st As StateFormula)
+            _StateFormula = st
         End Sub
 
         Private _StateFormula As StateFormula

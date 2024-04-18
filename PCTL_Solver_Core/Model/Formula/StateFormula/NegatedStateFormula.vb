@@ -3,8 +3,7 @@
     Public Class NegatedStateFormula
         Inherits StateFormula
 
-        Public Sub New(Evaluator As FormulaEvaluator, subFormula As StateFormula)
-            MyBase.New(Evaluator)
+        Public Sub New(subFormula As StateFormula)
             Me._SubFormula = subFormula
         End Sub
         Private _SubFormula As StateFormula
