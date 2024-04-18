@@ -1,4 +1,6 @@
-﻿Namespace Core.Model
+﻿Imports PCTL_Solver_Core.Core.Model.Formula
+
+Namespace Core.Model
 
 
     Public Class Network
@@ -6,7 +8,7 @@
         Private _Name As String
         Private _States As New List(Of State)
         Private _Branches As New List(Of Branch)
-
+        Private _StateFormulas As New List(Of StateFormula)
 
         Public Property Name As String
             Get
@@ -29,6 +31,11 @@
         Public Sub AddState(st As State)
             _States.Add(st)
         End Sub
+
+        Public Sub AddStateFormula(formula As StateFormula)
+            _StateFormulas.Add(formula)
+        End Sub
+
         Public Function GetStates() As List(Of State)
             Return _States
         End Function

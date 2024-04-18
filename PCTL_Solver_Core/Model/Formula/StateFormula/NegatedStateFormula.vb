@@ -3,19 +3,11 @@
     Public Class NegatedStateFormula
         Inherits StateFormula
 
-        Public Sub New(Evaluator As FormulaEvaluator, isNegated As Boolean, subFormula As StateFormula)
+        Public Sub New(Evaluator As FormulaEvaluator, subFormula As StateFormula)
             MyBase.New(Evaluator)
-            Me._IsNegated = isNegated
             Me._SubFormula = subFormula
         End Sub
-        Private _IsNegated As Boolean
         Private _SubFormula As StateFormula
-
-        Public ReadOnly Property IsNegated As Boolean
-            Get
-                Return _IsNegated
-            End Get
-        End Property
 
         Public ReadOnly Property SubFormula As StateFormula
             Get

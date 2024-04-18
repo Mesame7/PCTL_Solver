@@ -1,11 +1,16 @@
 ﻿
+Imports System.Text.RegularExpressions
 Imports PCTL_Solver_Core.Core.Model
+Imports PCTL_Solver_Core.Core.Model.Formula
 
 Namespace SystemManagement
 
 
     Public Class SystemManager
         Private _Networks As New List(Of Core.Model.Network)
+        Private _ActiveNetwork As Core.Model.Network
+        Private _Evaluator As FormulaEvaluator
+
         Public Sub New()
 
         End Sub
@@ -15,6 +20,7 @@ Namespace SystemManagement
             End If
             Dim network = New Core.Model.Network(name)
             _Networks.Add(network)
+            _ActiveNetwork = network
             Return network
         End Function
 
@@ -75,6 +81,63 @@ Namespace SystemManagement
         End Function
         Public Function ValidateInitPr(network As Core.Model.Network) As Boolean
             Return network.GetStates.Sum(Function(x) x.InitPr) = 1
+        End Function
+
+
+        Public Function CreateStateFormula(f As String) As StateFormula
+            f = f.Trim()
+            If Regex.IsMatch(f, "^\s*\(.*\)\s*$") Then
+                Dim conj = f.Substring(1, f.Length - 2).Trim
+                If conj.StartsWith("!"c) Then
+                    Return New NegatedStateFormula(_Evaluator, CreateStateFormula(conj.Substring(1)))
+                ElseIf conj.StartsWith("P>") Then
+                    Dim paramsTuple = GetPAndPathFormulaFromFormula(conj)
+                    Return New ProbabilityFormula(paramsTuple.Item1, CreatePathFormula(paramsTuple.Item2))
+                ElseIf Not conj.Contains("(") AndAlso Not conj.Contains("^") Then
+                    If conj.ToLower = "true" OrElse conj.ToLower = "false" Then
+                        Return New BooleanFormula(Boolean.Parse(conj))
+                    Else
+                        Return New LabelFormula(conj)
+                    End If
+                End If
+                Dim conjArray = SplitFormulaIgnoringBrackets(conj)
+                Dim conjFormula = New ConjunctionStateFormula()
+                For Each subFormula In conjArray
+                    conjFormula.AddSubState(CreateStateFormula(subFormula))
+                Next
+                Return conjFormula
+            Else
+                Console.Out.WriteLine("Please make sure you follow the rules for writing a formula")
+            End If
+            Return Nothing
+
+        End Function
+        Public Function CreatePathFormula(f As String) As PathFormula
+            If Regex.IsMatch(f, "^\s*\[.*\]\s*$") Then
+
+            Else
+                Throw New Exception($"Issue with {f}")
+            End If
+        End Function
+        Private Function GetPAndPathFormulaFromFormula(f As String) As Tuple(Of Double, String)
+            f = f.Substring(2)
+            Dim doubleString As String = ""
+            For Each c In f
+                If c <> "[" Then
+                    doubleString += c
+                End If
+            Next
+            Dim pathForm = f.Substring(doubleString.Length)
+            If Regex.IsMatch(pathForm, "^\s*\[.*\]\s*$") Then
+                Return New Tuple(Of Double, String)(Double.Parse(doubleString), pathForm)
+            Else
+                Throw New Exception($"Issue with Formula {f}")
+            End If
+        End Function
+        Function SplitFormulaIgnoringBrackets(input As String) As String()
+            Dim regexPattern As String = "\^(?![^\(]*\))"
+            Dim regex As New Regex(regexPattern)
+            Return regex.Split(input)
         End Function
     End Class
 End Namespace

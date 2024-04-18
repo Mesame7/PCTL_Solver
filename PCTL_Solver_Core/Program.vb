@@ -1,6 +1,7 @@
 Imports System
 Imports System.IO
 Imports System.Text.RegularExpressions
+Imports PCTL_Solver_Core.Core.Model.Formula
 Imports PCTL_Solver_Core.SystemManagement
 
 Module Program
@@ -29,7 +30,7 @@ Module Program
 
                     Case "eval"
                         If inputArgs.Length > 1 Then
-                            EvaluatePathFormula(inputArgs.ElementAt(1))
+                            ReadFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
                             Console.Write("Please specify a file to the network")
                         End If
@@ -96,20 +97,33 @@ Module Program
         Next
         Dim Ahmed = 1
     End Sub
+
+    Sub ReadFormulaFromFile(path As String)
+
+        Dim formulasLines As New List(Of String)
+        Try
+            Using reader As New StreamReader(path)
+                While (Not reader.EndOfStream)
+                    formulasLines.Add(reader.ReadLine())
+                End While
+            End Using
+        Catch ex As Exception
+            Console.WriteLine("Error reading the file: " & ex.Message)
+        End Try
+
+
+        For Each line In formulasLines
+            sysManager.CreateStateFormula(line)
+        Next
+
+        Dim Ahmed = 1
+    End Sub
+
+
     Function SplitStringIgnoringQuotes(input As String) As String()
         Dim regexPattern As String = " (?=(?:[^""]*""[^""]*"")*[^""]*$)"
         Dim regex As New Regex(regexPattern)
         Return regex.Split(input)
     End Function
-    Sub EvaluatePathFormula(f As String)
-        If Regex.IsMatch(f, "^\s*\(.*\)\s*$") Then
-
-
-        Else
-            Console.Out.WriteLine("Please make sure you follow the rules for writing a formula")
-        End If
-
-
-    End Sub
 
 End Module

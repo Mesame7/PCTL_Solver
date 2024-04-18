@@ -2,8 +2,7 @@
 
     Public Class BooleanFormula
         Inherits StateFormula
-        Public Sub New(Evaluator As FormulaEvaluator, value As Boolean)
-            MyBase.New(Evaluator)
+        Public Sub New(value As Boolean)
             Me._BoolValue = value
         End Sub
 
