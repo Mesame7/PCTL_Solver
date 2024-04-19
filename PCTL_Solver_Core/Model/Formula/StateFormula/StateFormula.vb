@@ -2,7 +2,7 @@
     Public MustInherit Class StateFormula
 
 
-        'Public MustOverride Function Evaluate() As Boolean
+        Public MustOverride Function Evaluate(state As State) As Boolean
 
 
 

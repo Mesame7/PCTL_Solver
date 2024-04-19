@@ -38,7 +38,7 @@ Module Program
                 End Select
                 ' Process the user input here (e.g., execute specific commands based on input).
                 ' For now, let's just display the entered value.
-                Console.WriteLine($"You entered: {userInput}")
+                'Console.WriteLine($"You entered: {userInput}")
             Catch ex As Exception
                 Console.WriteLine(ex.Message)
 
@@ -95,11 +95,12 @@ Module Program
         For Each parts In networkLines
             sysManager.CreateBranch(myNet, parts.ElementAt(0), parts.ElementAt(3))
         Next
+        myNet.GeneratePMatrix()
         Dim Ahmed = 1
     End Sub
 
     Sub ReadFormulaFromFile(path As String)
-
+        Dim net = sysManager.ActiveNetwork
         Dim formulasLines As New List(Of String)
         Try
             Using reader As New StreamReader(path)
@@ -113,7 +114,9 @@ Module Program
 
 
         For Each line In formulasLines
-            sysManager.CreateStateFormula(line)
+            Dim lineParams = line.Split(":")
+            Dim stFormula = sysManager.CreateStateFormula(lineParams.ElementAt(1))
+            Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula)}")
         Next
 
         Dim Ahmed = 1

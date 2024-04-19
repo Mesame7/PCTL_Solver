@@ -6,6 +6,10 @@
             Me._BoolValue = value
         End Sub
 
+        Public Overrides Function Evaluate(state As State) As Boolean
+            Return BoolValue
+        End Function
+
         Private _BoolValue As Boolean
         Public ReadOnly Property BoolValue As Boolean
             Get

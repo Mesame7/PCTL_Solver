@@ -9,7 +9,18 @@ Namespace Core.Model
         Private _States As New List(Of State)
         Private _Branches As New List(Of Branch)
         Private _StateFormulas As New List(Of StateFormula)
-
+        Private _PMatrix As Double(,)
+        Private _Evaluator As FormulaEvaluator
+        Public ReadOnly Property PMatrix As Double(,)
+            Get
+                Return _PMatrix
+            End Get
+        End Property
+        Public ReadOnly Property Evaluator As FormulaEvaluator
+            Get
+                Return _Evaluator
+            End Get
+        End Property
         Public Property Name As String
             Get
                 Return _Name
@@ -19,7 +30,8 @@ Namespace Core.Model
             End Set
         End Property
         Public Sub New(name As String)
-            _Name = name
+            Me._Name = name
+            Me._Evaluator = New FormulaEvaluator(Me)
         End Sub
         Public Sub AddBranch(br As Branch)
             _Branches.Add(br)
@@ -38,6 +50,23 @@ Namespace Core.Model
 
         Public Function GetStates() As List(Of State)
             Return _States
+        End Function
+        Public Function GetState(name As String) As State
+            Return _States.Where(Function(x) x.Name = name).FirstOrDefault
+        End Function
+        Public Sub GeneratePMatrix()
+            Dim matrix(_States.Count - 1, _States.Count - 1) As Double
+            _States.OrderBy(Of Integer)(Function(x) x.Index)
+            For Each st In _States
+                For Each br In st.GetBranches
+                    matrix(st.Index, br.ToState.Index) = br.P
+                Next
+            Next
+            _PMatrix = matrix
+        End Sub
+
+        Public Function EvaluateStateFormula(state As State, formula As StateFormula) As Boolean
+            Return _Evaluator.EvaluateStateFormula(state, formula)
         End Function
 
     End Class

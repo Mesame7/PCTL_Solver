@@ -3,17 +3,17 @@
     Public Class ConjunctionStateFormula
         Inherits StateFormula
 
-        Private _SubStates As New List(Of StateFormula)
+        Private _SubStateFormulas As New List(Of StateFormula)
 
         Public Sub AddSubState(StateFormula As StateFormula)
-            _SubStates.Add(StateFormula)
+            _SubStateFormulas.Add(StateFormula)
         End Sub
-        'Public Overrides Function Evaluate() As Boolean
-        '    For Each subState In _SubStates
-        '        If Not subState Then Return False
-        '    Next
-        '    Return True
-        'End Function
+        Public Overrides Function evaluate(state As State) As Boolean
+            For Each substate In _SubStateFormulas
+                If Not substate.Evaluate(state) Then Return False
+            Next
+            Return True
+        End Function
 
     End Class
 End Namespace

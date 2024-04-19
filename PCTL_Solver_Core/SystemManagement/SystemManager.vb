@@ -9,8 +9,12 @@ Namespace SystemManagement
     Public Class SystemManager
         Private _Networks As New List(Of Core.Model.Network)
         Private _ActiveNetwork As Core.Model.Network
-        Private _Evaluator As FormulaEvaluator
 
+        Public ReadOnly Property ActiveNetwork As Core.Model.Network
+            Get
+                Return _ActiveNetwork
+            End Get
+        End Property
         Public Sub New()
 
         End Sub
@@ -26,15 +30,15 @@ Namespace SystemManagement
 
         Public Sub CreateState(network As Core.Model.Network, stateName As String, initPr As String, labels As String)
             If Not IsNewStateInvalid(network, stateName, initPr) Then
-                Dim myState = New State(stateName, Double.Parse(initPr))
+                Dim myState = New State(stateName, Double.Parse(initPr), network.GetStates().Count)
 
                 For Each lbl In labels.Replace(" ", "").Split(",")
                     Dim myLabel As Label
-                    If lbl.StartsWith("!"c) Then
-                        myLabel = Label.CreateLabel(lbl.Substring(1), True)
-                    Else
-                        myLabel = Label.CreateLabel(lbl, False)
-                    End If
+                    ' If lbl.StartsWith("!"c) Then
+                    '  myLabel = Label.CreateLabel(lbl.Substring(1))
+                    '   Else
+                    myLabel = Label.CreateLabel(lbl)
+                    '   End If
                     myState.AddLabel(myLabel)
                 Next
 
@@ -83,9 +87,11 @@ Namespace SystemManagement
             Return network.GetStates.Sum(Function(x) x.InitPr) = 1
         End Function
 
-        Public Sub CreateStateFormula(f As String)
-            _ActiveNetwork.AddStateFormula(CreateStateFormulaHelper(f))
-        End Sub
+        Public Function CreateStateFormula(f As String) As StateFormula
+            Dim stateFormula As StateFormula = CreateStateFormulaHelper(f)
+            _ActiveNetwork.AddStateFormula(stateFormula)
+            Return stateFormula
+        End Function
 
         Private Function CreateStateFormulaHelper(f As String) As StateFormula
             f = f.Trim()
@@ -95,7 +101,7 @@ Namespace SystemManagement
                     Return New NegatedStateFormula(CreateStateFormulaHelper(conj.Substring(1)))
                 ElseIf conj.StartsWith("P>") Then
                     Dim paramsTuple = GetPAndPathFormulaFromFormula(conj)
-                    Return New ProbabilityFormula(paramsTuple.Item1, CreatePathFormula(paramsTuple.Item2))
+                    Return New ProbabilityFormula(paramsTuple.Item1, CreatePathFormula(paramsTuple.Item2), _ActiveNetwork.Evaluator)
                 ElseIf Not conj.Contains("(") AndAlso Not conj.Contains("^") Then
                     If conj.ToLower = "true" OrElse conj.ToLower = "false" Then
                         Return New BooleanFormula(Boolean.Parse(conj))
@@ -129,7 +135,7 @@ Namespace SystemManagement
                     Return pathFormula
 
                 ElseIf pathFormulaString.Contains("X") Then
-                    Return New NextFormula(CreateStateFormulaHelper(pathFormulaString.Substring(1)))
+                    Return New NextFormula(CreateStateFormulaHelper(pathFormulaString.Split("X").LastOrDefault))
                 Else
                     Return Nothing
                 End If

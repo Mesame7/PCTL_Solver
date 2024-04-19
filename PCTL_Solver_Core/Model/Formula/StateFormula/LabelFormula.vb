@@ -12,5 +12,8 @@
             End Get
         End Property
 
+        Public Overrides Function Evaluate(state As State) As Boolean
+            Return state.GetLabels.Any(Function(x) x.Name = Me._Label)
+        End Function
     End Class
 End Namespace

@@ -13,9 +13,9 @@
                 Return _SubFormula
             End Get
         End Property
-        'Public Overrides Function Evaluate(st As State) As Boolean
-        '    Return _SubFormula.Evaluate(st) Xor _IsNegated
-        'End Function
+        Public Overrides Function Evaluate(st As State) As Boolean
+            Return Not _SubFormula.Evaluate(st)
+        End Function
 
     End Class
 End Namespace
