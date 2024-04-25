@@ -2,6 +2,7 @@
 Imports System.Text.RegularExpressions
 Imports PCTL_Solver_Core.Core.Model
 Imports PCTL_Solver_Core.Core.Model.Formula
+Imports NCalc
 
 Namespace SystemManagement
 
@@ -63,8 +64,12 @@ Namespace SystemManagement
                 Dim toStateName = brParams.ElementAt(0)
                 Dim branchPr As Double
                 If Not Double.TryParse(brParams.ElementAt(1), branchPr) Then
-                    Console.WriteLine(String.Format("Please enter a correct propability for state {0}", toStateName))
-                    Return
+                    Try
+                        branchPr = (New Expression(brParams.ElementAt(1))).Evaluate()
+                    Catch ex As Exception
+                        Console.WriteLine(String.Format("Please enter a correct propability for state {0}", toStateName))
+                        Return
+                    End Try
                 End If
                 totalPr += branchPr
                 Dim toState = network.GetStates.Where(Function(x) x.Name = toStateName).FirstOrDefault
