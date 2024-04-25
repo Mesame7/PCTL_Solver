@@ -9,8 +9,8 @@
             _SubStateFormulas.Add(StateFormula)
         End Sub
         Public Overrides Function evaluate(state As State) As Boolean
-            For Each substate In _SubStateFormulas
-                If Not substate.Evaluate(state) Then Return False
+            For Each subStateFormula In _SubStateFormulas
+                If Not subStateFormula.Evaluate(state) Then Return False
             Next
             Return True
         End Function

@@ -23,19 +23,54 @@ Namespace Core.Model.Formula
                 Case GetType(UntilFiniteFormula)
 
                 Case GetType(UntilInfiniteFormula)
-
-
+                    Dim s0 = GetS0(stFormula.PathFormula)
+                    Dim Ahmed = 0
             End Select
         End Function
 
 
         Private Function EvaluateNextFormula(state As State, xFormula As NextFormula) As Double(,)
-            Dim bitVector = FindSAT(xFormula.StateFormula)
+            Dim bitVector = FindSATVector(xFormula.StateFormula)
             Dim nextSAT = MultiplyMatrices(_MyNetwork.PMatrix, bitVector)
             Return nextSAT
         End Function
 
-        Public Function FindSAT(stF As StateFormula) As Double(,)
+        Private Function GetStatesFomSATVector(bitV As Double(,)) As List(Of State)
+            Dim outList As New List(Of State)
+            For i = 0 To bitV.Length - 1
+                If bitV(i, 0) <> 0 Then
+                    Dim tempI = i
+                    outList.Add(_MyNetwork.GetStates.Where(Function(x) x.Index = tempI).FirstOrDefault)
+                End If
+            Next
+            Return outList
+        End Function
+
+        Function GetS0(untilFormula As UntilInfiniteFormula) As List(Of State)
+            Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
+            Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.FirstFormula))
+            Dim outList As New List(Of State)
+            For Each state In lastStates
+                Dim visitedStates As New List(Of State) From {state}
+                GetReachableStates(state, conditionStates, visitedStates)
+                outList = outList.Union(visitedStates).ToList
+            Next
+            Return _MyNetwork.GetStates.Where(Function(x) Not outList.Contains(x)).ToList
+        End Function
+
+        Private Sub GetReachableStates(state As State, preConditionStates As List(Of State), ByRef visitedStates As List(Of State))
+            For Each br In state.GetPreBranches
+                Dim preState = br.FromState
+                If Not visitedStates.Contains(preState) Then
+                    visitedStates.Add(preState)
+                    If preConditionStates.Contains(preState) Then
+                        GetReachableStates(preState, preConditionStates, visitedStates)
+                    End If
+                End If
+            Next
+        End Sub
+
+        Public Function FindSATVector(stF As StateFormula) As Double(,)
             Dim outSAT(_MyNetwork.GetStates.Count - 1, 0) As Double
             For Each state In _MyNetwork.GetStates
                 outSAT(state.Index, 0) = If(stF.Evaluate(state), 1, 0)

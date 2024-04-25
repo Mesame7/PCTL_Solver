@@ -65,6 +65,8 @@ Namespace Core.Model
             _PMatrix = matrix
         End Sub
 
+
+
         Public Function EvaluateStateFormula(state As State, formula As StateFormula) As Boolean
             Return _Evaluator.EvaluateStateFormula(state, formula)
         End Function

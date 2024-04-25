@@ -12,6 +12,7 @@
         Private _Labels As New List(Of Label)
 
         Private _NextBranches As New List(Of Branch)
+        Private _PreBranches As New List(Of Branch)
         Private _Index As Integer
 
         Public ReadOnly Property Index As Integer
@@ -31,8 +32,14 @@
         Public Sub AddBranch(br As Branch)
             _NextBranches.Add(br)
         End Sub
+        Public Sub AddPreBranch(br As Branch)
+            _PreBranches.Add(br)
+        End Sub
         Public Function GetBranches() As List(Of Branch)
             Return _NextBranches
+        End Function
+        Public Function GetPreBranches() As List(Of Branch)
+            Return _PreBranches
         End Function
         Public Sub AddLabel(lb As Label)
             _Labels.Add(lb)

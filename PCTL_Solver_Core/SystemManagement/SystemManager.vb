@@ -74,6 +74,7 @@ Namespace SystemManagement
                 End If
                 Dim myBranch = New Branch(String.Format("{0}->{1}", stateName, toStateName), branchPr, myState, toState)
                 myState.AddBranch(myBranch)
+                toState.AddPreBranch(myBranch)
                 network.AddBranch(myBranch)
             Next
             If totalPr <> 1 Then
