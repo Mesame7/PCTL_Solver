@@ -30,7 +30,7 @@ Module Program
 
                     Case "eval"
                         If inputArgs.Length > 1 Then
-                            ReadFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+                            EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
                             Console.Write("Please specify a file to the network")
                         End If
@@ -99,7 +99,7 @@ Module Program
         Dim Ahmed = 1
     End Sub
 
-    Sub ReadFormulaFromFile(path As String)
+    Public Function EvaluateFormulaFromFile(path As String) As Boolean
         Dim net = sysManager.ActiveNetwork
         Dim formulasLines As New List(Of String)
         Try
@@ -116,11 +116,11 @@ Module Program
         For Each line In formulasLines
             Dim lineParams = line.Split(":")
             Dim stFormula = sysManager.CreateStateFormula(lineParams.ElementAt(1))
-            Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula)}")
+            Dim outResult = net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula)
+            Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {outResult}")
         Next
-
-        Dim Ahmed = 1
-    End Sub
+        Return outResult
+    End Function
 
 
     Function SplitStringIgnoringQuotes(input As String) As String()

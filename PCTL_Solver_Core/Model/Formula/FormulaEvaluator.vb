@@ -22,7 +22,7 @@ Namespace Core.Model.Formula
             Select Case stFormula.PathFormula.GetType
 
                 Case GetType(NextFormula)
-                    Return EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0)
+                    Return EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0) ' TODO 
                 Case GetType(UntilFiniteFormula)
                     Return EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilInfiniteFormula)
@@ -43,12 +43,16 @@ Namespace Core.Model.Formula
 
         Private Function EvaluateUntillFinite(state As State, uFormula As UntilFiniteFormula) As Double(,)
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
-            conditionStates.Sort(Function(x, y) x.Index < y.Index)
-            Dim aMat = CalculateABMatFromStates(conditionStates, conditionStates)
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
+            Dim s0 = GetS0(uFormula)
+            Dim s1 = GetS1(uFormula) 'TODO 
+            Dim simplifiedC = conditionStates.Where(Function(x) Not s0.Contains(x) AndAlso Not lastStates.Contains(x)).ToList
+            simplifiedC.Sort(Function(x, y) x.Index < y.Index)
+
+            Dim aMat = CalculateABMatFromStates(simplifiedC, simplifiedC)
             lastStates.Sort(Function(x, y) x.Index < y.Index)
-            Dim bMat = CalculateABMatFromStates(conditionStates, lastStates)
-            Dim xn_1 = New Double(conditionStates.Count - 1, lastStates.Count - 1) {}
+            Dim bMat = CalculateABMatFromStates(simplifiedC, lastStates)
+            Dim xn_1 = New Double(simplifiedC.Count - 1, lastStates.Count - 1) {} 'TODO Sum them up
             For i = 0 To uFormula.HopCount - 1
                 xn_1 = SolveLFP_OneIter(aMat, xn_1, bMat)
             Next
@@ -89,16 +93,32 @@ Namespace Core.Model.Formula
         'Page 777
         Function GetS1(untilFormula As UntilInfiniteFormula) As List(Of State)
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
+            Dim preB = GetPreStar(lastStates)
+            Dim s_Slash_preB = _MyNetwork.GetStates.Where(Function(x) Not preB.Contains(x)).ToList
+            Dim pre_s_Slash_preB = GetPreStar(s_Slash_preB)
+            Dim out = _MyNetwork.GetStates().Where(Function(x) Not pre_s_Slash_preB.Contains(x)).ToList
+            Return out
+        End Function
+        Private Function GetPreStar(states As List(Of State))
             Dim preB As New List(Of State)
-            For Each st In preB
-
+            For Each st In states
+                GetReachableStates(st, preB)
             Next
-
+            Return preB
         End Function
 
+        Private Sub GetReachableStates(state As State, ByRef visitedStates As List(Of State))
+            For Each preState In state.GetPreStates
+                If Not visitedStates.Contains(preState) Then
+                    visitedStates.Add(preState)
+
+                    GetReachableStates(preState, visitedStates)
+                End If
+            Next
+        End Sub
+
         Private Sub GetReachableStates(state As State, preConditionStates As List(Of State), ByRef visitedStates As List(Of State))
-            For Each br In state.GetPreBranches
-                Dim preState = br.FromState
+            For Each preState In state.GetPreStates
                 If Not visitedStates.Contains(preState) Then
                     visitedStates.Add(preState)
                     If preConditionStates.Contains(preState) Then
@@ -141,19 +161,19 @@ Namespace Core.Model.Formula
                 Throw New Exception("Mat size mismatch")
             End If
             Dim numRows As Integer = matrix1.GetLength(0)
-                Dim numCols As Integer = matrix1.GetLength(1)
+            Dim numCols As Integer = matrix1.GetLength(1)
 
-                ' Initialize the result matrix
-                Dim resultMatrix As Double(,) = New Double(numRows - 1, numCols - 1) {}
+            ' Initialize the result matrix
+            Dim resultMatrix As Double(,) = New Double(numRows - 1, numCols - 1) {}
 
-                ' Perform element-wise addition
-                For i As Integer = 0 To numRows - 1
-                    For j As Integer = 0 To numCols - 1
-                        resultMatrix(i, j) = matrix1(i, j) + matrix2(i, j)
-                    Next
+            ' Perform element-wise addition
+            For i As Integer = 0 To numRows - 1
+                For j As Integer = 0 To numCols - 1
+                    resultMatrix(i, j) = matrix1(i, j) + matrix2(i, j)
                 Next
+            Next
 
-                Return resultMatrix
+            Return resultMatrix
         End Function
 
         'Page 768

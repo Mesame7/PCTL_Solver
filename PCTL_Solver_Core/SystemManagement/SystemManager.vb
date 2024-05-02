@@ -21,7 +21,7 @@ Namespace SystemManagement
         End Sub
         Public Function CreateNetwork(name As String) As Core.Model.Network
             If _Networks.Any(Function(x) x.Name = name) Then
-                Throw New Exception("Network already exists") 'TODO Create Exceptions
+                _Networks.RemoveAll(Function(x) x.Name = name)
             End If
             Dim network = New Core.Model.Network(name)
             _Networks.Add(network)

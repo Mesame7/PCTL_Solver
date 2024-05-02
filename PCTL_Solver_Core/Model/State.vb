@@ -44,8 +44,8 @@
         Public Function GetPreBranches() As List(Of Branch)
             Return _PreBranches
         End Function
-        Public Function GetPreStates() As List(Of Branch)
-            Return _PreBranches.Select(Function(x) x.FromState)
+        Public Function GetPreStates() As List(Of State)
+            Return _PreBranches.Select(Function(x) x.FromState).ToList
         End Function
         Public Sub AddLabel(lb As Label)
             _Labels.Add(lb)
