@@ -105,9 +105,9 @@ Namespace SystemManagement
                 Dim conj = f.Substring(1, f.Length - 2).Trim
                 If conj.StartsWith("!"c) Then
                     Return New NegatedStateFormula(CreateStateFormulaHelper(conj.Substring(1)))
-                ElseIf conj.StartsWith("P>") Then
+                ElseIf conj.StartsWith("Pin") Then
                     Dim paramsTuple = GetPAndPathFormulaFromFormula(conj)
-                    Return New ProbabilityFormula(paramsTuple.Item1, CreatePathFormula(paramsTuple.Item2), _ActiveNetwork.Evaluator)
+                    Return New ProbabilityFormula(paramsTuple.Item1, paramsTuple.Item2, paramsTuple.Item3, paramsTuple.Item4, CreatePathFormula(paramsTuple.Item5), _ActiveNetwork.Evaluator)
                 ElseIf Not conj.Contains("(") AndAlso Not conj.Contains("^") Then
                     If conj.ToLower = "true" OrElse conj.ToLower = "false" Then
                         Return New BooleanFormula(Boolean.Parse(conj))
@@ -129,7 +129,7 @@ Namespace SystemManagement
         End Function
         Public Function CreatePathFormula(f As String) As PathFormula
             f = f.Trim
-            If Regex.IsMatch(f, "^\s*\[.*\]\s*$") Then
+            If Regex.IsMatch(f, "^\s*\{.*\}\s*$") Then
                 Dim pathFormulaString = f.Substring(1, f.Length - 2).Trim
                 If pathFormulaString.Contains("U<=") Then
                     Dim stateFomulas = pathFormulaString.Split("U<=")
@@ -161,19 +161,38 @@ Namespace SystemManagement
             Next
             Return New Tuple(Of Integer, String)(Integer.Parse(intString), f.Substring(intString.Length))
         End Function
-        Private Function GetPAndPathFormulaFromFormula(f As String) As Tuple(Of Double, String)
-            f = f.Substring(2)
+        Private Function GetPAndPathFormulaFromFormula(f As String) As Tuple(Of Double, Boolean, Double, Boolean, String)
+            f = f.Substring(3)
             Dim doubleString As String = ""
             For Each c In f
-                If c <> "[" Then
+                If c <> "{" Then
                     doubleString += c
                 Else
                     Exit For
                 End If
             Next
+
             Dim pathForm = f.Substring(doubleString.Length)
-            If Regex.IsMatch(pathForm, "^\s*\[.*\]\s*$") Then
-                Return New Tuple(Of Double, String)(Double.Parse(doubleString), pathForm)
+            doubleString = doubleString.Trim
+            Dim pMinEqual As Boolean
+            Dim pMaxEqual As Boolean
+            If doubleString.StartsWith("[") Then
+                pMinEqual = True
+            ElseIf doubleString.StartsWith("]") Then
+                pMinEqual = False
+            Else
+                Throw New Exception($"Issue with Formula {f}")
+            End If
+            If doubleString.EndsWith("[") Then
+                pMaxEqual = False
+            ElseIf doubleString.EndsWith("]") Then
+                pMaxEqual = True
+            Else
+                Throw New Exception($"Issue with Formula {f}")
+            End If
+            Dim pArray = doubleString.Replace("[", "").Replace("]", "").Split(",")
+            If Regex.IsMatch(pathForm, "^\s*\{.*\}\s*$") Then
+                Return New Tuple(Of Double, Boolean, Double, Boolean, String)(Double.Parse(pArray.ElementAt(0).Trim), pMinEqual, Double.Parse(pArray.ElementAt(1).Trim), pMaxEqual, pathForm)
             Else
                 Throw New Exception($"Issue with Formula {f}")
             End If

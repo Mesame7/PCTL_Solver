@@ -10,21 +10,26 @@ Namespace Core.Model.Formula
         End Sub
 
         Public Function EvaluateStateFormula(state As State, formula As StateFormula) As Boolean
-            Return formula.Evaluate(state)
+            Dim timer = Stopwatch.StartNew()
+            Dim output = formula.Evaluate(state)
+            Console.WriteLine($"Formula Evaluated in {timer.Elapsed}")
+            Return output
         End Function
 
 
-        Public Function EvaluateProbStateFormula(state As State, stFormula As ProbabilityFormula) As Boolean
+        Public Function EvaluateProbStateFormula(state As State, stFormula As ProbabilityFormula) As Double
 
             Select Case stFormula.PathFormula.GetType
 
                 Case GetType(NextFormula)
-                    Return EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0) > stFormula.P
+                    Return EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilFiniteFormula)
-                    Return EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0) > stFormula.P
+                    Return EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilInfiniteFormula)
                     Dim s0 = GetS0(stFormula.PathFormula)
-                    Dim Ahmed = 0
+                    Return 0
+                Case Else
+                    Return 0
             End Select
         End Function
 
@@ -66,6 +71,8 @@ Namespace Core.Model.Formula
             Return outList
         End Function
 
+
+        'Page 765
         Function GetS0(untilFormula As UntilInfiniteFormula) As List(Of State)
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.FirstFormula))
@@ -76,6 +83,17 @@ Namespace Core.Model.Formula
                 outList = outList.Union(visitedStates).ToList
             Next
             Return _MyNetwork.GetStates.Where(Function(x) Not outList.Contains(x)).ToList
+        End Function
+
+
+        'Page 777
+        Function GetS1(untilFormula As UntilInfiniteFormula) As List(Of State)
+            Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
+            Dim preB As New List(Of State)
+            For Each st In preB
+
+            Next
+
         End Function
 
         Private Sub GetReachableStates(state As State, preConditionStates As List(Of State), ByRef visitedStates As List(Of State))
