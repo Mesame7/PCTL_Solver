@@ -3,7 +3,7 @@
 Namespace Core.Model.Formula
 
     Public Class FormulaEvaluator
-
+        Public Shared LastOutValue As Double 'Improve or remove
         Private _MyNetwork As Network
         Public Sub New(network As Network)
             Me._MyNetwork = network
@@ -18,19 +18,23 @@ Namespace Core.Model.Formula
 
 
         Public Function EvaluateProbStateFormula(state As State, stFormula As ProbabilityFormula) As Double
-
+            Dim outVal As Double
             Select Case stFormula.PathFormula.GetType
 
                 Case GetType(NextFormula)
-                    Return EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0) ' TODO 
+                    outVal = EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilFiniteFormula)
-                    Return EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0)
+                    outVal = EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilInfiniteFormula)
                     Dim s0 = GetS0(stFormula.PathFormula)
-                    Return 0
+                    outVal = -1
                 Case Else
-                    Return 0
+                    outVal = -1
             End Select
+            outVal = Math.Round(outVal, 10)
+            LastOutValue = outVal
+            Console.WriteLine($"P Formula evaluates to {outVal}")
+            Return outVal
         End Function
 
 

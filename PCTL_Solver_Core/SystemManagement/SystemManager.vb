@@ -3,6 +3,7 @@ Imports System.Text.RegularExpressions
 Imports PCTL_Solver_Core.Core.Model
 Imports PCTL_Solver_Core.Core.Model.Formula
 Imports NCalc
+Imports System.IO
 
 Namespace SystemManagement
 
@@ -223,6 +224,68 @@ Namespace SystemManagement
             Dim lastSubstring As String = input.Substring(startIndex + 1)
             outArray.Add(lastSubstring)
             Return outArray.ToArray
+
+        End Function
+        Sub ReadNetworkFromFile(path As String)
+
+            Dim networkLines As New List(Of String())
+            Try
+                Using reader As New StreamReader(path)
+                    While (Not reader.EndOfStream)
+                        networkLines.Add(reader.ReadLine().Replace(" ", "").Split(":"c))
+                    End While
+                End Using
+            Catch ex As Exception
+                Console.WriteLine("Error reading the file: " & ex.Message)
+            End Try
+
+            Dim myNet = CreateNetwork("Sample")
+            For Each parts In networkLines
+                CreateState(
+                    myNet,
+                    parts.ElementAt(0),
+                    parts.ElementAt(1),
+                    parts.ElementAt(2))
+            Next
+            If Not ValidateInitPr(myNet) Then
+                Console.WriteLine("Please make sure that the inital properties sum to 1")
+                Return
+            Else
+                Console.WriteLine(String.Format("Network {0} was created with {1} states", myNet.Name, myNet.GetStates.Count))
+            End If
+            For Each parts In networkLines
+                CreateBranch(myNet, parts.ElementAt(0), parts.ElementAt(3))
+            Next
+            myNet.GeneratePMatrix()
+            Dim Ahmed = 1
+        End Sub
+        Public Function EvaluateFormulaFromFile(path As String) As Boolean
+            Dim net = ActiveNetwork
+            Dim formulasLines As New List(Of String)
+            Try
+                Using reader As New StreamReader(path)
+                    While (Not reader.EndOfStream)
+                        formulasLines.Add(reader.ReadLine())
+                    End While
+                End Using
+            Catch ex As Exception
+
+                Console.WriteLine("Error reading the file: " & ex.Message)
+                Return False
+            End Try
+
+
+
+            Dim line = formulasLines.FirstOrDefault
+            Dim lineParams = line.Split(":")
+            Dim stFormula = CreateStateFormula(lineParams.ElementAt(1))
+            Dim outResult = net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula)
+            Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {outResult}")
+            If Not outResult Then
+                Return False
+            End If
+
+            Return True
         End Function
     End Class
 End Namespace

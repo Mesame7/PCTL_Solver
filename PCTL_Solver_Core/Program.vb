@@ -3,9 +3,8 @@ Imports System.IO
 Imports System.Text.RegularExpressions
 Imports PCTL_Solver_Core.Core.Model.Formula
 Imports PCTL_Solver_Core.SystemManagement
-
 Module Program
-    Dim sysManager As SystemManager = New SystemManager()
+    Public SysManager As SystemManager = New SystemManager()
     Sub Main(args As String())
         Dim userInput As String
 
@@ -19,18 +18,18 @@ Module Program
                 Select Case inputArgs.FirstOrDefault
                     Case "open"
                         If inputArgs.Length > 1 Then
-                            ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+                            SysManager.ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
                             Console.Write("Please specify a file to the network")
                         End If
                     Case "new"
                         Console.Write("You are creating a new network, Please enter the name: ")
                         userInput = Console.ReadLine()
-                        Dim mynetwork = sysManager.CreateNetwork(userInput)
+                        Dim mynetwork = SysManager.CreateNetwork(userInput)
 
                     Case "eval"
                         If inputArgs.Length > 1 Then
-                            EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+                            SysManager.EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
                             Console.Write("Please specify a file to the network")
                         End If
@@ -65,62 +64,6 @@ Module Program
         Loop While userInput.ToLower() <> "exit"
 
     End Sub
-    Sub ReadNetworkFromFile(path As String)
-
-        Dim networkLines As New List(Of String())
-        Try
-            Using reader As New StreamReader(path)
-                While (Not reader.EndOfStream)
-                    networkLines.Add(reader.ReadLine().Replace(" ", "").Split(":"c))
-                End While
-            End Using
-        Catch ex As Exception
-            Console.WriteLine("Error reading the file: " & ex.Message)
-        End Try
-
-        Dim myNet = sysManager.CreateNetwork("Sample")
-        For Each parts In networkLines
-            sysManager.CreateState(
-                myNet,
-                parts.ElementAt(0),
-                parts.ElementAt(1),
-                parts.ElementAt(2))
-        Next
-        If Not sysManager.ValidateInitPr(myNet) Then
-            Console.WriteLine("Please make sure that the inital properties sum to 1")
-            Return
-        Else
-            Console.WriteLine(String.Format("Network {0} was created with {1} states", myNet.Name, myNet.GetStates.Count))
-        End If
-        For Each parts In networkLines
-            sysManager.CreateBranch(myNet, parts.ElementAt(0), parts.ElementAt(3))
-        Next
-        myNet.GeneratePMatrix()
-        Dim Ahmed = 1
-    End Sub
-
-    Public Function EvaluateFormulaFromFile(path As String) As Boolean
-        Dim net = sysManager.ActiveNetwork
-        Dim formulasLines As New List(Of String)
-        Try
-            Using reader As New StreamReader(path)
-                While (Not reader.EndOfStream)
-                    formulasLines.Add(reader.ReadLine())
-                End While
-            End Using
-        Catch ex As Exception
-            Console.WriteLine("Error reading the file: " & ex.Message)
-        End Try
-
-
-        For Each line In formulasLines
-            Dim lineParams = line.Split(":")
-            Dim stFormula = sysManager.CreateStateFormula(lineParams.ElementAt(1))
-            Dim outResult = net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula)
-            Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {outResult}")
-        Next
-        Return outResult
-    End Function
 
 
     Function SplitStringIgnoringQuotes(input As String) As String()
