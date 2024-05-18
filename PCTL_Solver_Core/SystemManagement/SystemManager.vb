@@ -35,6 +35,7 @@ Namespace SystemManagement
                 Dim myState = New State(stateName, Double.Parse(initPr), network.GetStates().Count)
 
                 For Each lbl In labels.Replace(" ", "").Split(",")
+                    If String.IsNullOrWhiteSpace(lbl) Then Continue For
                     Dim myLabel As Label
                     ' If lbl.StartsWith("!"c) Then
                     '  myLabel = Label.CreateLabel(lbl.Substring(1))
@@ -237,6 +238,7 @@ Namespace SystemManagement
                 End Using
             Catch ex As Exception
                 Console.WriteLine("Error reading the file: " & ex.Message)
+                Return
             End Try
 
             Dim myNet = CreateNetwork("Sample")

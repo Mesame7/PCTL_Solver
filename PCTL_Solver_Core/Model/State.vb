@@ -39,7 +39,7 @@
             Return _NextBranches
         End Function
         Public Function GetNextStates() As List(Of State)
-            Return _NextBranches.Select(Function(x) x.ToState)
+            Return _NextBranches.Select(Function(x) x.ToState).ToList
         End Function
         Public Function GetPreBranches() As List(Of Branch)
             Return _PreBranches
