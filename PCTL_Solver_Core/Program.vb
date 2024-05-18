@@ -4,7 +4,6 @@ Imports System.Text.RegularExpressions
 Imports PCTL_Solver_Core.Core.Model.Formula
 Imports PCTL_Solver_Core.SystemManagement
 Module Program
-    Public SysManager As SystemManager = New SystemManager()
     Sub Main(args As String())
         Dim userInput As String
 
@@ -18,18 +17,18 @@ Module Program
                 Select Case inputArgs.FirstOrDefault
                     Case "open"
                         If inputArgs.Length > 1 Then
-                            SysManager.ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+                            SystemManager.GetInstance().ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
                             Console.Write("Please specify a file to the network")
                         End If
                     Case "new"
                         Console.Write("You are creating a new network, Please enter the name: ")
                         userInput = Console.ReadLine()
-                        Dim mynetwork = SysManager.CreateNetwork(userInput)
+                        Dim mynetwork = SystemManager.GetInstance().CreateNetwork(userInput)
 
                     Case "eval"
                         If inputArgs.Length > 1 Then
-                            SysManager.EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+                            SystemManager.GetInstance().EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
                             Console.Write("Please specify a file to the network")
                         End If
@@ -56,7 +55,7 @@ Module Program
                 Case "st"
                     Console.Write("You are creating a new state, Please enter the name: ")
                     userInput = Console.ReadLine()
-                  '  Dim mynetwork = sysManager.CreateNetwork(userInput)
+                  '  Dim mynetwork = SystemManager.GetInstance().CreateNetwork(userInput)
 
                 Case "br"
 

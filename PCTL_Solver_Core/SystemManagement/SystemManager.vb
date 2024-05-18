@@ -11,15 +11,27 @@ Namespace SystemManagement
     Public Class SystemManager
         Private _Networks As New List(Of Core.Model.Network)
         Private _ActiveNetwork As Core.Model.Network
-
+        Private Shared _SysManager As SystemManager
         Public ReadOnly Property ActiveNetwork As Core.Model.Network
             Get
                 Return _ActiveNetwork
             End Get
         End Property
-        Public Sub New()
+        Private Sub New()
 
         End Sub
+        Public Shared Function GetInstance() As SystemManager
+            If _SysManager Is Nothing Then
+                _SysManager = New SystemManager()
+            End If
+            Return _SysManager
+        End Function
+        Public Shared Sub Reset()
+            SystemManager.GetInstance()._Networks = New List(Of Network)
+            SystemManager.GetInstance()._Networks = New List(Of Network)
+
+        End Sub
+
         Public Function CreateNetwork(name As String) As Core.Model.Network
             If _Networks.Any(Function(x) x.Name = name) Then
                 _Networks.RemoveAll(Function(x) x.Name = name)

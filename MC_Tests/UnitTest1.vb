@@ -15,7 +15,7 @@ Namespace MC_Tests
 
         <Test>
         Public Sub TestCraps2()
-            Dim SysManager = New SystemManager
+            Dim SysManager = SystemManager.GetInstance
             Dim currentFolderPath As String = TestContext.CurrentContext.TestDirectory
             Dim subFolderPath = Path.Combine(currentFolderPath, "files")
             SysManager.ReadNetworkFromFile(subFolderPath + "\craps\craps.txt")
@@ -29,7 +29,7 @@ Namespace MC_Tests
 
         <Test>
         Public Sub TestSimple()
-            Dim SysManager = New SystemManager
+            Dim SysManager = SystemManager.GetInstance
             Dim currentFolderPath As String = TestContext.CurrentContext.TestDirectory
             Dim subFolderPath = Path.Combine(currentFolderPath, "files")
             SysManager.ReadNetworkFromFile(subFolderPath + "\Koenig\states.txt")
