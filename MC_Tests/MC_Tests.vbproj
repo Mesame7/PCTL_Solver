@@ -1,12 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-
+    <TargetFramework>net7.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
@@ -14,15 +11,12 @@
     <PackageReference Include="NUnit.Analyzers" Version="3.6.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\PCTL_Solver_Core\PCTL_Solver_Core.vbproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="files\" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="files\craps\craps.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -37,5 +31,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
