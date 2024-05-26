@@ -14,15 +14,15 @@ Module Program
                 Console.Write("Enter a command: ")
                 userInput = Console.ReadLine()
                 Dim inputArgs = SplitStringIgnoringQuotes(userInput)
-                Select Case inputArgs.FirstOrDefault
+                Select Case inputArgs.FirstOrDefault.ToLower
                     Case "open"
                         If inputArgs.Length > 1 Then
                             SystemManager.GetInstance().ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
-                            Console.Write("Please specify a file to the network")
+                            Console.WriteLine("Please specify a file to the network")
                         End If
                     Case "new"
-                        Console.Write("You are creating a new network, Please enter the name: ")
+                        Console.WriteLine("You are creating a new network, Please enter the name: ")
                         userInput = Console.ReadLine()
                         Dim mynetwork = SystemManager.GetInstance().CreateNetwork(userInput)
 
@@ -30,8 +30,11 @@ Module Program
                         If inputArgs.Length > 1 Then
                             SystemManager.GetInstance().EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
                         Else
-                            Console.Write("Please specify a file to the network")
+                            Console.WriteLine("Please specify a file to the network")
                         End If
+                    Case "clear"
+                        Console.WriteLine("Saved networks cleared")
+                        SystemManager.GetInstance.Reset()
 
                 End Select
                 ' Process the user input here (e.g., execute specific commands based on input).

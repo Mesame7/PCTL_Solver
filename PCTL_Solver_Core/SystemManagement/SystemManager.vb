@@ -26,10 +26,9 @@ Namespace SystemManagement
             End If
             Return _SysManager
         End Function
-        Public Shared Sub Reset()
-            SystemManager.GetInstance()._Networks = New List(Of Network)
-            SystemManager.GetInstance()._Networks = New List(Of Network)
-
+        Public Sub Reset()
+            Me._Networks = New List(Of Network)
+            Me._Networks = New List(Of Network)
         End Sub
 
         Public Function CreateNetwork(name As String) As Core.Model.Network
@@ -109,6 +108,9 @@ Namespace SystemManagement
 
         Public Function CreateStateFormula(f As String) As StateFormula
             Dim stateFormula As StateFormula = CreateStateFormulaHelper(f)
+            If stateFormula Is Nothing Then
+                Throw New Exception($"Formula - {f} - couldn't be evaluated")
+            End If
             _ActiveNetwork.AddStateFormula(stateFormula)
             Return stateFormula
         End Function
@@ -239,11 +241,13 @@ Namespace SystemManagement
             Return outArray.ToArray
 
         End Function
-        Sub ReadNetworkFromFile(path As String)
-
+        Sub ReadNetworkFromFile(netPath As String)
+            If String.IsNullOrWhiteSpace(netPath) OrElse Not File.Exists(netPath) Then
+                Throw New Exception("Network path is invalid")
+            End If
             Dim networkLines As New List(Of String())
             Try
-                Using reader As New StreamReader(path)
+                Using reader As New StreamReader(netPath)
                     While (Not reader.EndOfStream)
                         networkLines.Add(reader.ReadLine().Replace(" ", "").Split(":"c))
                     End While

@@ -26,11 +26,11 @@ Namespace Core.Model.Formula
                 Case GetType(UntilFiniteFormula)
                     outVal = EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilInfiniteFormula)
-                    outVal = EvaluateUntillInfinite(state, stFormula.PathFormula)(state.Index, 0)
+                    outVal = EvaluateUntillInfinite(state, stFormula.PathFormula)
                 Case Else
                     outVal = -1
             End Select
-            outVal = Math.Round(outVal, 10)
+            ' outVal = Math.Round(outVal, 10)
             LastOutValue = outVal
             Console.WriteLine($"P Formula evaluates to {outVal}")
             Return outVal
@@ -44,7 +44,7 @@ Namespace Core.Model.Formula
         End Function
 
 
-        Private Function EvaluateUntillInfinite(state As State, uFormula As UntilInfiniteFormula) As Double(,)
+        Private Function EvaluateUntillInfinite(state As State, uFormula As UntilInfiniteFormula) As Double
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
@@ -52,7 +52,7 @@ Namespace Core.Model.Formula
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
             Dim steadyStateMat = GetSteadyStateMatrix(sOther)
             Dim out = SolveWithGaussian(steadyStateMat, GetConstantMatrix(s1))
-            Return Nothing
+            Return out(state.Index)
         End Function
         Private Function EvaluateUntillFinite(state As State, uFormula As UntilFiniteFormula) As Double(,)
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
