@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
@@ -7,7 +6,7 @@ Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "PCTL_Solver_Core", "PCTL_So
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "MC_Tests", "MC_Tests\MC_Tests.vbproj", "{F807ABAE-0D00-4D20-B781-8C71123EB61F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PCTL_Export", "PCTL_Export\PCTL_Export.csproj", "{D407BF84-AFBF-4166-BA90-2D4DD1C7754A}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "PCTL_Export_VB", "PCTL_Export_VB\PCTL_Export_VB.vbproj", "{B065598B-B4FD-485F-AEE4-46F88E047C1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +22,10 @@ Global
 		{F807ABAE-0D00-4D20-B781-8C71123EB61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F807ABAE-0D00-4D20-B781-8C71123EB61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F807ABAE-0D00-4D20-B781-8C71123EB61F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D407BF84-AFBF-4166-BA90-2D4DD1C7754A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D407BF84-AFBF-4166-BA90-2D4DD1C7754A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D407BF84-AFBF-4166-BA90-2D4DD1C7754A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D407BF84-AFBF-4166-BA90-2D4DD1C7754A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B065598B-B4FD-485F-AEE4-46F88E047C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B065598B-B4FD-485F-AEE4-46F88E047C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B065598B-B4FD-485F-AEE4-46F88E047C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B065598B-B4FD-485F-AEE4-46F88E047C1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
