@@ -275,7 +275,6 @@ Namespace SystemManagement
                 CreateBranch(myNet, parts.ElementAt(0), parts.ElementAt(3))
             Next
             myNet.GeneratePMatrix()
-            Dim Ahmed = 1
         End Sub
         Public Function EvaluateFormulaFromFile(path As String) As Boolean
             Dim net = ActiveNetwork
