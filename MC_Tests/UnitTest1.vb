@@ -18,7 +18,7 @@ Namespace MC_Tests
             Dim SysManager = SystemManager.GetInstance
             Dim currentFolderPath As String = TestContext.CurrentContext.TestDirectory
             Dim subFolderPath = Path.Combine(currentFolderPath, "files")
-            SysManager.ReadNetworkFromFile(subFolderPath + "\craps\craps.txt")
+            SysManager.ReadModelFromFile(subFolderPath + "\craps\craps.txt")
             Dim outVal = SysManager.EvaluateFormulaFromFile(subFolderPath + "\craps\formulas.txt")
             Assert.True(outVal)
             Assert.True(FormulaEvaluator.LastOutValue = 0.2608024691)
@@ -32,7 +32,7 @@ Namespace MC_Tests
             Dim SysManager = SystemManager.GetInstance
             Dim currentFolderPath As String = TestContext.CurrentContext.TestDirectory
             Dim subFolderPath = Path.Combine(currentFolderPath, "files")
-            SysManager.ReadNetworkFromFile(subFolderPath + "\Koenig\states.txt")
+            SysManager.ReadModelFromFile(subFolderPath + "\Koenig\states.txt")
             Dim outVal = SysManager.EvaluateFormulaFromFile(subFolderPath + "\Koenig\formulas.txt")
             Assert.True(outVal)
             Assert.True(FormulaEvaluator.LastOutValue = 1)

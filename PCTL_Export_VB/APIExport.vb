@@ -5,7 +5,7 @@ Namespace APIExporter
 
     Public Class APIExport
         Public Shared Sub ReadNetwork(filePath As String)
-            SystemManager.GetInstance().ReadNetworkFromFile(filePath)
+            SystemManager.GetInstance().ReadModelFromFile(filePath)
         End Sub
         Public Shared Sub EvaluateFormula(filePath As String)
             SystemManager.GetInstance().EvaluateFormulaFromFile(filePath)

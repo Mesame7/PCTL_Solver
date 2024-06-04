@@ -62,7 +62,7 @@ Module Program
     End Sub
     Sub OpenNetwork(inputArgs As String())
         If inputArgs.Length > 1 Then
-            SystemManager.GetInstance().ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+            SystemManager.GetInstance().ReadModelFromFile(inputArgs.ElementAt(1).Replace("""", ""))
         Else
             Console.WriteLine("Please specify a file to the network")
         End If
