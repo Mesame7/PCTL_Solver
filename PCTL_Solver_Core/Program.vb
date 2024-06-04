@@ -6,46 +6,31 @@ Imports PCTL_Solver_Core.SystemManagement
 Module Program
     Sub Main(args As String())
         Dim userInput As String
-
         Console.WriteLine("Type 'exit' to quit.")
         Do
             Try
-
                 Console.Write("Enter a command: ")
                 userInput = Console.ReadLine()
-                Dim inputArgs = SplitStringIgnoringQuotes(userInput)
+                Dim inputArgs = GetInputArguments(userInput)
                 Select Case inputArgs.FirstOrDefault.ToLower
                     Case "open"
-                        If inputArgs.Length > 1 Then
-                            SystemManager.GetInstance().ReadNetworkFromFile(inputArgs.ElementAt(1).Replace("""", ""))
-                        Else
-                            Console.WriteLine("Please specify a file to the network")
-                        End If
+                        OpenNetwork(inputArgs)
                     Case "new"
                         Console.WriteLine("You are creating a new network, Please enter the name: ")
                         userInput = Console.ReadLine()
                         Dim mynetwork = SystemManager.GetInstance().CreateNetwork(userInput)
-
                     Case "eval"
-                        If inputArgs.Length > 1 Then
-                            SystemManager.GetInstance().EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
-                        Else
-                            Console.WriteLine("Please specify a file to the network")
-                        End If
+                        EvaluateFormulas(inputArgs)
                     Case "clear"
+                        Reset()
                         Console.WriteLine("Saved networks cleared")
-                        SystemManager.GetInstance.Reset()
+
 
                 End Select
-                ' Process the user input here (e.g., execute specific commands based on input).
-                ' For now, let's just display the entered value.
-                'Console.WriteLine($"You entered: {userInput}")
             Catch ex As Exception
                 Console.WriteLine(ex.Message)
-
             End Try
         Loop While userInput.ToLower() <> "exit"
-
         Console.WriteLine("Exiting the program. Press any key to close...")
         Console.ReadKey(True)
     End Sub
@@ -67,8 +52,28 @@ Module Program
 
     End Sub
 
+    Sub EvaluateFormulas(inputArgs As String())
+        If inputArgs.Length > 1 Then
+            SystemManager.GetInstance().EvaluateFormulaFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+        Else
+            Console.WriteLine("Please specify a file to the network")
+        End If
 
-    Function SplitStringIgnoringQuotes(input As String) As String()
+    End Sub
+    Sub OpenNetwork(inputArgs As String())
+        If inputArgs.Length > 1 Then
+            SystemManager.GetInstance().ReadModelFromFile(inputArgs.ElementAt(1).Replace("""", ""))
+        Else
+            Console.WriteLine("Please specify a file to the network")
+        End If
+    End Sub
+
+    Sub Reset()
+        SystemManager.GetInstance.Reset()
+    End Sub
+
+
+    Function GetInputArguments(input As String) As String()
         Dim regexPattern As String = " (?=(?:[^""]*""[^""]*"")*[^""]*$)"
         Dim regex As New Regex(regexPattern)
         Return regex.Split(input)

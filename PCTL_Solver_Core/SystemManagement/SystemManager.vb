@@ -241,15 +241,13 @@ Namespace SystemManagement
             Return outArray.ToArray
 
         End Function
-        Sub ReadNetworkFromFile(netPath As String)
-            If String.IsNullOrWhiteSpace(netPath) OrElse Not File.Exists(netPath) Then
-                Throw New Exception("Network path is invalid")
-            End If
-            Dim networkLines As New List(Of String())
+        Sub ReadModelFromFile(filePath As String)
+            ValidateModelPath(filePath)
+            Dim modelLines As New List(Of String())
             Try
-                Using reader As New StreamReader(netPath)
+                Using reader As New StreamReader(filePath)
                     While (Not reader.EndOfStream)
-                        networkLines.Add(reader.ReadLine().Replace(" ", "").Split(":"c))
+                        modelLines.Add(reader.ReadLine().Replace(" ", "").Split(":"c))
                     End While
                 End Using
             Catch ex As Exception
@@ -257,26 +255,34 @@ Namespace SystemManagement
                 Return
             End Try
 
-            Dim myNet = CreateNetwork("Sample")
-            For Each parts In networkLines
-                CreateState(
-                    myNet,
-                    parts.ElementAt(0),
-                    parts.ElementAt(1),
-                    parts.ElementAt(2))
-            Next
+            Dim myNet = CreateModelWithStates(modelLines)
             If Not ValidateInitPr(myNet) Then
                 Console.WriteLine("Please make sure that the inital properties sum to 1")
                 Return
             Else
                 Console.WriteLine(String.Format("Network {0} was created with {1} states", myNet.Name, myNet.GetStates.Count))
             End If
-            For Each parts In networkLines
+            For Each parts In modelLines
                 CreateBranch(myNet, parts.ElementAt(0), parts.ElementAt(3))
             Next
             myNet.GeneratePMatrix()
-            Dim Ahmed = 1
         End Sub
+        Private Sub ValidateModelPath(filePath As String)
+            If String.IsNullOrWhiteSpace(filePath) OrElse Not File.Exists(filePath) Then
+                Throw New Exception("Network path is invalid")
+            End If
+        End Sub
+        Private Function CreateModelWithStates(modelLines As List(Of String())) As Network
+            Dim myNet = CreateNetwork("Sample")
+            For Each parts In modelLines
+                CreateState(
+                    myNet,
+                    parts.ElementAt(0),
+                    parts.ElementAt(1),
+                    parts.ElementAt(2))
+            Next
+            Return myNet
+        End Function
         Public Function EvaluateFormulaFromFile(path As String) As Boolean
             Dim net = ActiveNetwork
             Dim formulasLines As New List(Of String)
