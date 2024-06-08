@@ -21,7 +21,7 @@ Namespace MC_Tests
             SysManager.ReadModelFromFile(subFolderPath + "\craps\craps.txt")
             Dim outVal = SysManager.EvaluateFormulaFromFile(subFolderPath + "\craps\formulas.txt")
             Assert.True(outVal)
-            Assert.True(FormulaEvaluator.LastOutValue = 0.2608024691)
+            Assert.True(Math.Abs(FormulaEvaluator.LastOutValue - 0.2608024691) < 0.000001)
         End Sub
 
 
@@ -35,7 +35,7 @@ Namespace MC_Tests
             SysManager.ReadModelFromFile(subFolderPath + "\Koenig\states.txt")
             Dim outVal = SysManager.EvaluateFormulaFromFile(subFolderPath + "\Koenig\formulas.txt")
             Assert.True(outVal)
-            Assert.True(FormulaEvaluator.LastOutValue = 1)
+            Assert.True(Math.Abs(FormulaEvaluator.LastOutValue - 1) < 0.000001)
         End Sub
 
     End Class

@@ -4,6 +4,7 @@ Imports PCTL_Solver_Core.Core.Model
 Imports PCTL_Solver_Core.Core.Model.Formula
 Imports NCalc
 Imports System.IO
+Imports System.Globalization
 
 Namespace SystemManagement
 
@@ -43,7 +44,7 @@ Namespace SystemManagement
 
         Public Sub CreateState(network As Core.Model.Network, stateName As String, initPr As String, labels As String)
             If Not IsNewStateInvalid(network, stateName, initPr) Then
-                Dim myState = New State(stateName, Double.Parse(initPr), network.GetStates().Count)
+                Dim myState = New State(stateName, Double.Parse(initPr, CultureInfo.InvariantCulture), network.GetStates().Count)
 
                 For Each lbl In labels.Replace(" ", "").Split(",")
                     If String.IsNullOrWhiteSpace(lbl) Then Continue For
@@ -208,7 +209,7 @@ Namespace SystemManagement
             End If
             Dim pArray = doubleString.Replace("[", "").Replace("]", "").Split(",")
             If Regex.IsMatch(pathForm, "^\s*\{.*\}\s*$") Then
-                Return New Tuple(Of Double, Boolean, Double, Boolean, String)(Double.Parse(pArray.ElementAt(0).Trim), pMinEqual, Double.Parse(pArray.ElementAt(1).Trim), pMaxEqual, pathForm)
+                Return New Tuple(Of Double, Boolean, Double, Boolean, String)(Double.Parse(pArray.ElementAt(0).Trim, CultureInfo.GetCultureInfo("en-US")), pMinEqual, Double.Parse(pArray.ElementAt(1).Trim, CultureInfo.GetCultureInfo("en-US")), pMaxEqual, pathForm)
             Else
                 Throw New Exception($"Issue with Formula {f}")
             End If

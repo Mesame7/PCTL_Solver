@@ -1,10 +1,17 @@
 Imports System
+Imports System.Globalization
 Imports System.IO
+Imports System.Net.Mime.MediaTypeNames
 Imports System.Text.RegularExpressions
 Imports PCTL_Solver_Core.Core.Model.Formula
 Imports PCTL_Solver_Core.SystemManagement
 Module Program
     Sub Main(args As String())
+        Dim myCulture = CultureInfo.GetCultureInfo("en-US")
+
+        CultureInfo.DefaultThreadCurrentCulture = myCulture
+        CultureInfo.DefaultThreadCurrentUICulture = myCulture
+
         Dim userInput As String
         Console.WriteLine("Type 'exit' to quit.")
         Do

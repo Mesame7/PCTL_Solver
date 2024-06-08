@@ -9,6 +9,9 @@
         Private _PMax As Double = 1
         Private _FormulaEvaluator As FormulaEvaluator
         Public Sub New(pMin As Double, pMinEqual As Boolean, pMax As Double, pMaxEqual As Boolean, path As PathFormula, formulaEvaluator As FormulaEvaluator)
+            If pMax > 1 OrElse pMax < 0 OrElse pMin > 1 OrElse pMin < 0 OrElse pMin > pMax Then
+                Throw New Exception("Wrong P limits")
+            End If
             Me._PMin = pMin
             Me._MinEqual = pMinEqual
             Me._PMax = pMax
