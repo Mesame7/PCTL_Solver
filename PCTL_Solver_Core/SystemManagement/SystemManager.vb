@@ -149,7 +149,7 @@ Namespace SystemManagement
             If Regex.IsMatch(f, "^\s*\{.*\}\s*$") Then
                 Dim pathFormulaString = f.Substring(1, f.Length - 2).Trim
                 If pathFormulaString.Contains("U<=") Then
-                    Dim stateFomulas = pathFormulaString.Split("U<=")
+                    Dim stateFomulas = pathFormulaString.Split("U")
                     Dim formParams = GetHopCount(stateFomulas.ElementAt(1))
                     Return New UntilFiniteFormula(CreateStateFormulaHelper(stateFomulas.ElementAt(0)), CreateStateFormulaHelper(formParams.Item2), formParams.Item1)
                 ElseIf pathFormulaString.Contains("U") Then
@@ -160,13 +160,14 @@ Namespace SystemManagement
                 ElseIf pathFormulaString.Contains("X") Then
                     Return New NextFormula(CreateStateFormulaHelper(pathFormulaString.Split("X").LastOrDefault))
                 Else
-                    Return Nothing
+                    Throw New Exception($"Issue with {f}")
                 End If
             Else
                 Throw New Exception($"Issue with {f}")
             End If
         End Function
         Private Function GetHopCount(f As String) As Tuple(Of Integer, String)
+            f = f.Remove(0, 2)
             Dim intString As String = ""
             For Each c In f
                 If c <> "(" AndAlso c <> " " Then
@@ -268,6 +269,35 @@ Namespace SystemManagement
             Next
             myNet.GeneratePMatrix()
         End Sub
+
+
+        Public Function GetPMatrixPython() As Double()()
+            Dim arrJagged As New List(Of Double())
+
+            For i As Integer = 0 To ActiveNetwork.PMatrix.GetLength(0) - 1
+                Dim row As New List(Of Double)
+                For j As Integer = 0 To ActiveNetwork.PMatrix.GetLength(1) - 1
+                    row.Add(ActiveNetwork.PMatrix(i, j))
+                Next
+                arrJagged.Add(row.ToArray())
+            Next
+
+            Return arrJagged.ToArray()
+        End Function
+
+        Public Function GenerateStatesForPython() As Array
+            Dim outArr(ActiveNetwork.GetStates.Count - 1) As String
+            For Each st In ActiveNetwork.GetStates()
+                Dim stateString = $"{st.Name} : "
+                For Each lbl In st.GetLabels
+                    stateString = stateString + $"{lbl.Name} ,"
+                Next
+                stateString = stateString.Remove(stateString.Length - 1).TrimEnd
+                outArr(st.Index) = stateString
+            Next
+
+            Return outArr
+        End Function
         Private Sub ValidateModelPath(filePath As String)
             If String.IsNullOrWhiteSpace(filePath) OrElse Not File.Exists(filePath) Then
                 Throw New Exception("Network path is invalid")

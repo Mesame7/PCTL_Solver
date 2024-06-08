@@ -1,4 +1,5 @@
 Imports System.Runtime.InteropServices
+Imports PCTL_Solver_Core.Core.Model.Formula
 Imports PCTL_Solver_Core.SystemManagement
 Imports RGiesecke.DllExport
 Namespace APIExporter
@@ -7,8 +8,15 @@ Namespace APIExporter
         Public Shared Sub ReadNetwork(filePath As String)
             SystemManager.GetInstance().ReadModelFromFile(filePath)
         End Sub
-        Public Shared Sub EvaluateFormula(filePath As String)
+        Public Shared Function EvaluateFormula(filePath As String) As Dictionary(Of String, Integer())
             SystemManager.GetInstance().EvaluateFormulaFromFile(filePath)
-        End Sub
+            Return FormulaEvaluator.GetEvaluationVector()
+        End Function
+        Public Shared Function GetStates() As String()
+            Return SystemManager.GetInstance.GenerateStatesForPython()
+        End Function
+        Public Shared Function GetPMatrix() As Double()()
+            Return SystemManager.GetInstance.GetPMatrixPython.Select(Function(row) row.ToArray()).ToArray()
+        End Function
     End Class
 End Namespace

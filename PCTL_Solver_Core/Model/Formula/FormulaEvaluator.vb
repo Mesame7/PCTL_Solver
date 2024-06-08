@@ -4,6 +4,7 @@ Namespace Core.Model.Formula
 
     Public Class FormulaEvaluator
         Public Shared LastOutValue As Double 'Improve or remove
+        Private Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
         Private _MyNetwork As Network
         Public Sub New(network As Network)
             Me._MyNetwork = network
@@ -35,8 +36,16 @@ Namespace Core.Model.Formula
             Console.WriteLine($"P Formula evaluates to {outVal}")
             Return outVal
         End Function
-
-
+        Private Function GetSATVectorFromStates(states As List(Of State)) As Integer()
+            Dim outList(_MyNetwork.GetStates.Count - 1) As Integer
+            For Each st In states
+                outList(st.Index) = 1
+            Next
+            Return outList
+        End Function
+        Public Shared Function GetEvaluationVector() As Dictionary(Of String, Integer())
+            Return _EvaluationDictionary
+        End Function
         Private Function EvaluateNextFormula(state As State, xFormula As NextFormula) As Double(,)
             Dim bitVector = FindSATVector(xFormula.StateFormula)
             Dim nextSAT = MultiplyMatrices(_MyNetwork.PMatrix, bitVector)
@@ -48,7 +57,10 @@ Namespace Core.Model.Formula
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
+            _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
             Dim s1 = GetS1Prism(uFormula, s0) 'TODO 
+            _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
+
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
             Dim steadyStateMat = GetSteadyStateMatrix(sOther)
             Dim out = SolveWithGaussian(steadyStateMat, GetConstantMatrix(s1))
