@@ -1,7 +1,7 @@
 ﻿Namespace Core.Model
 
     Public Class State
-        Inherits SystemObject
+        Inherits ModelObject
         Public Sub New(name As String, initPr As Double, index As Integer)
             Me.Name = name
             Me.InitPr = initPr

@@ -1,5 +1,5 @@
 ﻿Namespace Core.Model
-    Public MustInherit Class SystemObject
+    Public MustInherit Class ModelObject
         Private _Name As String
         Public Property Name As String
             Get

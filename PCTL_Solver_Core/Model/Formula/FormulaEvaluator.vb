@@ -5,8 +5,8 @@ Namespace Core.Model.Formula
     Public Class FormulaEvaluator
         Public Shared LastOutValue As Double 'Improve or remove
         Private Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
-        Private _MyNetwork As Network
-        Public Sub New(network As Network)
+        Private _MyNetwork As Model
+        Public Sub New(network As Model)
             Me._MyNetwork = network
         End Sub
 

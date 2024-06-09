@@ -1,7 +1,7 @@
 ﻿Namespace Core.Model
 
     Public Class Branch
-        Inherits SystemObject
+        Inherits ModelObject
 
         Public Sub New(name As String, p As Double, fromState As State, toState As State)
             Me.Name = name

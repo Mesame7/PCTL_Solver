@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PCTL_CLI</RootNamespace>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PCTL_Solver_Core\PCTL_Solver_Core.vbproj" />
+  </ItemGroup>
+
+</Project>

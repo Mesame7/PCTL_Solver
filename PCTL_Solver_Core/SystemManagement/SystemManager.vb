@@ -10,10 +10,10 @@ Namespace SystemManagement
 
 
     Public Class SystemManager
-        Private _Networks As New List(Of Core.Model.Network)
-        Private _ActiveNetwork As Core.Model.Network
+        Private _Networks As New List(Of Core.Model.Model)
+        Private _ActiveNetwork As Core.Model.Model
         Private Shared _SysManager As SystemManager
-        Public ReadOnly Property ActiveNetwork As Core.Model.Network
+        Public ReadOnly Property ActiveNetwork As Core.Model.Model
             Get
                 Return _ActiveNetwork
             End Get
@@ -28,21 +28,21 @@ Namespace SystemManagement
             Return _SysManager
         End Function
         Public Sub Reset()
-            Me._Networks = New List(Of Network)
-            Me._Networks = New List(Of Network)
+            Me._Networks = New List(Of Model)
+            Me._Networks = New List(Of Model)
         End Sub
 
-        Public Function CreateNetwork(name As String) As Core.Model.Network
+        Public Function CreateNetwork(name As String) As Core.Model.Model
             If _Networks.Any(Function(x) x.Name = name) Then
                 _Networks.RemoveAll(Function(x) x.Name = name)
             End If
-            Dim network = New Core.Model.Network(name)
+            Dim network = New Core.Model.Model(name)
             _Networks.Add(network)
             _ActiveNetwork = network
             Return network
         End Function
 
-        Public Sub CreateState(network As Core.Model.Network, stateName As String, initPr As String, labels As String)
+        Public Sub CreateState(network As Core.Model.Model, stateName As String, initPr As String, labels As String)
             If Not IsNewStateInvalid(network, stateName, initPr) Then
                 Dim myState = New State(stateName, Double.Parse(initPr, CultureInfo.InvariantCulture), network.GetStates().Count)
 
@@ -66,7 +66,7 @@ Namespace SystemManagement
 
         End Sub
 
-        Public Sub CreateBranch(network As Core.Model.Network, stateName As String, branches As String)
+        Public Sub CreateBranch(network As Core.Model.Model, stateName As String, branches As String)
             Dim myState = network.GetStates.Where(Function(x) x.Name = stateName).FirstOrDefault
             If myState Is Nothing Then
                 Console.WriteLine(String.Format("State {0} doesn't exist", stateName))
@@ -100,10 +100,10 @@ Namespace SystemManagement
                 Throw New Exception(String.Format("Total Propabilities exiting state {0} is not equal to 1", stateName))
             End If
         End Sub
-        Public Function IsNewStateInvalid(network As Core.Model.Network, stateName As String, initPr As String) As Boolean
+        Public Function IsNewStateInvalid(network As Core.Model.Model, stateName As String, initPr As String) As Boolean
             Return network.GetStates.Any(Function(x) x.Name = stateName) OrElse Not Double.TryParse(initPr, 0)
         End Function
-        Public Function ValidateInitPr(network As Core.Model.Network) As Boolean
+        Public Function ValidateInitPr(network As Core.Model.Model) As Boolean
             Return network.GetStates.Sum(Function(x) x.InitPr) = 1
         End Function
 
@@ -303,7 +303,7 @@ Namespace SystemManagement
                 Throw New Exception("Network path is invalid")
             End If
         End Sub
-        Private Function CreateModelWithStates(modelLines As List(Of String())) As Network
+        Private Function CreateModelWithStates(modelLines As List(Of String())) As Model
             Dim myNet = CreateNetwork("Sample")
             For Each parts In modelLines
                 CreateState(
