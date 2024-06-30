@@ -24,7 +24,7 @@
 
             Set(value As Double)
                 If value > 1 OrElse value <= 0 Then
-                    Throw New NotImplementedException("Validate First the value")
+                    Throw New Exception("p value out of range")
                 Else
                     Me._P = value
                 End If

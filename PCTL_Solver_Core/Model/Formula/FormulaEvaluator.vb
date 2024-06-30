@@ -71,13 +71,13 @@ Namespace Core.Model.Formula
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
             Dim s1 = GetS1(uFormula) 'TODO 
-            Dim simplifiedC = conditionStates.Where(Function(x) Not s0.Contains(x) AndAlso Not lastStates.Contains(x)).ToList
-            simplifiedC.Sort(Function(x, y) x.Index < y.Index)
+            Dim s_rest = conditionStates.Where(Function(x) Not s0.Contains(x) AndAlso Not lastStates.Contains(x)).ToList
+            s_rest.Sort(Function(x, y) x.Index < y.Index)
 
-            Dim aMat = CalculateABMatFromStates(simplifiedC, simplifiedC)
+            Dim aMat = CalculateABMatFromStates(s_rest, s_rest)
             lastStates.Sort(Function(x, y) x.Index < y.Index)
-            Dim bMat = CalculateABMatFromStates(simplifiedC, lastStates)
-            Dim xn_1 = New Double(simplifiedC.Count - 1, lastStates.Count - 1) {} 'TODO Sum them up
+            Dim bMat = CalculateABMatFromStates(s_rest, lastStates)
+            Dim xn_1 = New Double(s_rest.Count - 1, lastStates.Count - 1) {} 'TODO Sum them up
             For i = 0 To uFormula.HopCount - 1
                 xn_1 = SolveLFP_OneIter(aMat, xn_1, bMat)
             Next
@@ -213,14 +213,12 @@ Namespace Core.Model.Formula
             Return out
         End Function
         Private Function MultiplyMatrices(matrix1 As Double(,), matrix2 As Double(,)) As Double(,)
-            Dim numRows1 As Integer = matrix1.GetLength(0)
-            Dim numCols1 As Integer = matrix1.GetLength(1)
-            Dim numRows2 As Integer = matrix2.GetLength(0)
-            Dim numCols2 As Integer = matrix2.GetLength(1)
-
+            Dim numRows1 = matrix1.GetLength(0)
+            Dim numCols1 = matrix1.GetLength(1)
+            Dim numRows2 = matrix2.GetLength(0)
+            Dim numCols2 = matrix2.GetLength(1)
             ' Initialize the result matrix
             Dim resultMatrix As Double(,) = New Double(numRows1 - 1, numCols2 - 1) {}
-
             ' Perform matrix multiplication
             For i As Integer = 0 To numRows1 - 1
                 For j As Integer = 0 To numCols2 - 1

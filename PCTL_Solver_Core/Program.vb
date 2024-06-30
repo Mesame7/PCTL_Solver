@@ -8,7 +8,7 @@ Imports PCTL_Solver_Core.SystemManagement
 Module Program
     Sub Main(args As String())
         Dim myCulture = CultureInfo.GetCultureInfo("en-US")
-
+        CultureInfo.CurrentCulture = myCulture
         CultureInfo.DefaultThreadCurrentCulture = myCulture
         CultureInfo.DefaultThreadCurrentUICulture = myCulture
 

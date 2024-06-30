@@ -1,3 +1,4 @@
+Imports System.Globalization
 Imports System.IO
 Imports NUnit.Framework
 Imports PCTL_Solver_Core
@@ -9,9 +10,23 @@ Namespace MC_Tests
 
         <SetUp>
         Public Sub Setup()
+            Dim myCulture = CultureInfo.GetCultureInfo("en-US")
+            CultureInfo.CurrentCulture = myCulture
+            CultureInfo.DefaultThreadCurrentCulture = myCulture
+            CultureInfo.DefaultThreadCurrentUICulture = myCulture
         End Sub
 
 
+        <Test>
+        Public Sub TestPrism()
+            Dim SysManager = SystemManager.GetInstance
+            Dim currentFolderPath As String = TestContext.CurrentContext.TestDirectory
+            Dim subFolderPath = Path.Combine(currentFolderPath, "files")
+            SysManager.ReadModelFromFile(subFolderPath + "\prism\states.txt")
+            Dim outVal = SysManager.EvaluateFormulaFromFile(subFolderPath + "\prism\formulas.txt")
+            Assert.True(outVal)
+            Assert.True(Math.Abs(FormulaEvaluator.LastOutValue - 0.8) < 0.000001)
+        End Sub
 
         <Test>
         Public Sub TestCraps2()
