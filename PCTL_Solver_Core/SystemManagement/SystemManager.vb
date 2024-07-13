@@ -29,7 +29,8 @@ Namespace SystemManagement
         End Function
         Public Sub Reset()
             Me._Networks = New List(Of Model)
-            Me._Networks = New List(Of Model)
+            Me._ActiveNetwork = Nothing
+            FormulaEvaluator._EvaluationDictionary.Clear()
         End Sub
 
         Public Function CreateNetwork(name As String) As Core.Model.Model

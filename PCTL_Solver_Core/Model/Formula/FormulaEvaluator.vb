@@ -5,7 +5,7 @@ Namespace Core.Model.Formula
     Public Class FormulaEvaluator
         Public Shared LastOutValue As Double 'Improve or remove
         Public Shared ShowTime As Boolean
-        Private Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
+        Public Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
         Private _MyNetwork As Model
         Public Sub New(network As Model)
             Me._MyNetwork = network
@@ -67,7 +67,7 @@ Namespace Core.Model.Formula
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
             _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s1))
             Dim steadyStateMat = GetSteadyStateMatrix(sOther)
-            Dim out = SolveWithGaussian(steadyStateMat, GetConstantMatrix(s1))
+            Dim out = SolveWithLU(steadyStateMat, GetConstantMatrix(s1))
             Return out(state.Index)
         End Function
         Private Function EvaluateUntillFinite(state As State, uFormula As UntilFiniteFormula) As Double(,)
@@ -154,25 +154,54 @@ Namespace Core.Model.Formula
             Return preB
         End Function
 
+        'Private Sub GetReachableStates(state As State, ByRef visitedStates As List(Of State))
+        '    For Each preState In state.GetPreStates
+        '        If Not visitedStates.Contains(preState) Then
+        '            visitedStates.Add(preState)
+
+        '            GetReachableStates(preState, visitedStates)
+        '        End If
+        '    Next
+        'End Sub
         Private Sub GetReachableStates(state As State, ByRef visitedStates As List(Of State))
-            For Each preState In state.GetPreStates
-                If Not visitedStates.Contains(preState) Then
-                    visitedStates.Add(preState)
+            Dim stack As New Stack(Of State)
+            stack.Push(state)
 
-                    GetReachableStates(preState, visitedStates)
-                End If
-            Next
-        End Sub
+            While stack.Count > 0
+                Dim currentState As State = stack.Pop()
 
-        Private Sub GetReachableStates(state As State, preConditionStates As List(Of State), ByRef visitedStates As List(Of State))
-            For Each preState In state.GetPreStates
-                If Not visitedStates.Contains(preState) Then
-                    If preConditionStates.Contains(preState) Then
+                For Each preState In currentState.GetPreStates()
+                    If Not visitedStates.Contains(preState) Then
                         visitedStates.Add(preState)
-                        GetReachableStates(preState, preConditionStates, visitedStates)
+                        stack.Push(preState)
                     End If
-                End If
-            Next
+                Next
+            End While
+        End Sub
+        Private Sub GetReachableStates(state As State, preConditionStates As List(Of State), ByRef visitedStates As List(Of State))
+            'For Each preState In state.GetPreStates
+            '    If Not visitedStates.Contains(preState) Then
+            '        If preConditionStates.Contains(preState) Then
+            '            visitedStates.Add(preState)
+            '            GetReachableStates(preState, preConditionStates, visitedStates)
+            '        End If
+            '    End If
+            'Next
+            Dim stack As New Stack(Of State)
+            stack.Push(state)
+
+            While stack.Count > 0
+                Dim currentState As State = stack.Pop()
+
+                For Each preState In currentState.GetPreStates()
+                    If Not visitedStates.Contains(preState) Then
+                        If preConditionStates.Contains(preState) Then
+                            visitedStates.Add(preState)
+                            stack.Push(preState)
+                        End If
+                    End If
+                Next
+            End While
         End Sub
 
         Public Function FindSATVector(stF As StateFormula) As Double(,)
@@ -310,6 +339,79 @@ Namespace Core.Model.Formula
 
             Return solution
         End Function
+        Public Function LU_Decomposition(ByVal coefficients As Double(,)) As Tuple(Of Double(,), Double(,))
+            Dim num_rows As Integer = coefficients.GetLength(0)
+            Dim num_cols As Integer = coefficients.GetLength(1)
+
+            If num_rows <> num_cols Then
+                Throw New ArgumentException("Matrix must be square")
+            End If
+
+            Dim L(num_rows - 1, num_cols - 1) As Double
+            Dim U(num_rows - 1, num_cols - 1) As Double
+
+            For i As Integer = 0 To num_rows - 1
+                For j As Integer = 0 To i
+                    Dim sum As Double = 0
+                    For k As Integer = 0 To j - 1
+                        sum += L(i, k) * U(k, j)
+                    Next
+                    L(i, j) = coefficients(i, j) - sum
+                Next
+                For j As Integer = i To num_cols - 1
+                    Dim sum As Double = 0
+                    For k As Integer = 0 To i - 1
+                        sum += L(i, k) * U(k, j)
+                    Next
+                    If L(i, i) = 0 Then
+                        Throw New ArgumentException("Matrix is singular")
+                    End If
+                    U(i, j) = (coefficients(i, j) - sum) / L(i, i)
+                Next
+            Next
+
+            Return New Tuple(Of Double(,), Double(,))(L, U)
+        End Function
+
+        Public Function ForwardSubstitution(ByVal L As Double(,), ByVal b As Double()) As Double()
+            Dim n As Integer = L.GetLength(0)
+            Dim y(n - 1) As Double
+
+            For i As Integer = 0 To n - 1
+                y(i) = b(i)
+                For j As Integer = 0 To i - 1
+                    y(i) -= L(i, j) * y(j)
+                Next
+                y(i) /= L(i, i)
+            Next
+
+            Return y
+        End Function
+
+        Public Function BackwardSubstitution(ByVal U As Double(,), ByVal y As Double()) As Double()
+            Dim n As Integer = U.GetLength(0)
+            Dim x(n - 1) As Double
+
+            For i As Integer = n - 1 To 0 Step -1
+                x(i) = y(i)
+                For j As Integer = i + 1 To n - 1
+                    x(i) -= U(i, j) * x(j)
+                Next
+                x(i) /= U(i, i)
+            Next
+
+            Return x
+        End Function
+
+        Public Function SolveWithLU(ByVal coefficients As Double(,), ByVal constants As Double()) As Double()
+            Dim LU = LU_Decomposition(coefficients)
+            Dim L = LU.Item1
+            Dim U = LU.Item2
+            Dim y As Double() = ForwardSubstitution(L, constants)
+            Dim x As Double() = BackwardSubstitution(U, y)
+            Return x
+        End Function
+
 
     End Class
 End Namespace
