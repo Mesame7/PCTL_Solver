@@ -4,6 +4,7 @@ Namespace Core.Model.Formula
 
     Public Class FormulaEvaluator
         Public Shared LastOutValue As Double 'Improve or remove
+        Public Shared ShowTime As Boolean
         Private Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
         Private _MyNetwork As Model
         Public Sub New(network As Model)
@@ -13,7 +14,9 @@ Namespace Core.Model.Formula
         Public Function EvaluateStateFormula(state As State, formula As StateFormula) As Boolean
             Dim timer = Stopwatch.StartNew()
             Dim output = formula.Evaluate(state)
-            Console.WriteLine($"Formula Evaluated in {timer.Elapsed}")
+            If ShowTime Then
+                Console.WriteLine($"Formula Evaluated in {timer.Elapsed}")
+            End If
             Return output
         End Function
 
@@ -62,6 +65,7 @@ Namespace Core.Model.Formula
             _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
 
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
+            _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s1))
             Dim steadyStateMat = GetSteadyStateMatrix(sOther)
             Dim out = SolveWithGaussian(steadyStateMat, GetConstantMatrix(s1))
             Return out(state.Index)
@@ -70,10 +74,12 @@ Namespace Core.Model.Formula
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
+            _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
             Dim s1 = GetS1(uFormula) 'TODO 
+            _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
             Dim s_rest = conditionStates.Where(Function(x) Not s0.Contains(x) AndAlso Not lastStates.Contains(x)).ToList
             s_rest.Sort(Function(x, y) x.Index < y.Index)
-
+            _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s_rest))
             Dim aMat = CalculateABMatFromStates(s_rest, s_rest)
             lastStates.Sort(Function(x, y) x.Index < y.Index)
             Dim bMat = CalculateABMatFromStates(s_rest, lastStates)

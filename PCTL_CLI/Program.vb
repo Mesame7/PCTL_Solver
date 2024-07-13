@@ -33,6 +33,9 @@ Module Program
                     Case "clear"
                         Reset()
                         Console.WriteLine("Saved networks cleared")
+                    Case "time"
+                        FormulaEvaluator.ShowTime = Not FormulaEvaluator.ShowTime
+                        Console.WriteLine(If(FormulaEvaluator.ShowTime, "Time will show", "Time will not show"))
 
 
                 End Select

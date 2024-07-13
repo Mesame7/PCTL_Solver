@@ -329,18 +329,19 @@ Namespace SystemManagement
                 Return False
             End Try
 
+            Dim outResult = True
+            For Each line In formulasLines
+                Console.Out.WriteLine("---------------------------")
+                Dim lineParams = line.Split(":")
+                Dim stFormula = CreateStateFormula(lineParams.ElementAt(1))
+                If Not net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula) Then
+                    outResult = False
+                End If
+                Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {outResult}")
+            Next
 
 
-            Dim line = formulasLines.FirstOrDefault
-            Dim lineParams = line.Split(":")
-            Dim stFormula = CreateStateFormula(lineParams.ElementAt(1))
-            Dim outResult = net.EvaluateStateFormula(net.GetState(lineParams.ElementAt(0).Trim), stFormula)
-            Console.Out.WriteLine($"The formuula: {lineParams.ElementAt(1) } evaluates to {outResult}")
-            If Not outResult Then
-                Return False
-            End If
-
-            Return True
+            Return outResult
         End Function
     End Class
 End Namespace
