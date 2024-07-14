@@ -4,8 +4,12 @@ Namespace Core.Model.Formula
 
     Public Class FormulaEvaluator
         Public Shared LastOutValue As Double 'Improve or remove
-        Public Shared ShowTime As Boolean
+        Public Shared ShowTime As Boolean = True
+        Public Shared ShowValue As Boolean
+        Public Shared AddToDict As Boolean = False
         Public Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
+        Public Shared _TimeDictionary As New Dictionary(Of String, Double)
+        Private Shared _EvalCounter As Integer = 0
         Private _MyNetwork As Model
         Public Sub New(network As Model)
             Me._MyNetwork = network
@@ -16,7 +20,9 @@ Namespace Core.Model.Formula
             Dim output = formula.Evaluate(state)
             If ShowTime Then
                 Console.WriteLine($"Formula Evaluated in {timer.Elapsed}")
+                _TimeDictionary.Add($"{_MyNetwork.GetStates.Count}:{_EvalCounter}", timer.Elapsed.TotalSeconds)
             End If
+            _EvalCounter += 1
             Return output
         End Function
 
@@ -36,7 +42,9 @@ Namespace Core.Model.Formula
             End Select
             ' outVal = Math.Round(outVal, 10)
             LastOutValue = outVal
-            Console.WriteLine($"P Formula evaluates to {outVal}")
+            If ShowValue Then
+                Console.WriteLine($"P Formula evaluates to {outVal}")
+            End If
             Return outVal
         End Function
         Private Function GetSATVectorFromStates(states As List(Of State)) As Integer()
@@ -60,12 +68,15 @@ Namespace Core.Model.Formula
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
-            _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
             Dim s1 = GetS1Prism(uFormula, s0) 'TODO 
-            _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
-
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
-            _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s1))
+            If AddToDict Then
+
+                _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
+                _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
+
+                _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s1))
+            End If
             Dim steadyStateMat = GetSteadyStateMatrix(sOther)
             Dim out = SolveWithLU(steadyStateMat, GetConstantMatrix(s1))
             Return out(state.Index)
@@ -74,12 +85,15 @@ Namespace Core.Model.Formula
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
-            _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
             Dim s1 = GetS1(uFormula) 'TODO 
-            _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
             Dim s_rest = conditionStates.Where(Function(x) Not s0.Contains(x) AndAlso Not lastStates.Contains(x)).ToList
             s_rest.Sort(Function(x, y) x.Index < y.Index)
-            _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s_rest))
+            If AddToDict Then
+
+                _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
+                _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
+                _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s_rest))
+            End If
             Dim aMat = CalculateABMatFromStates(s_rest, s_rest)
             lastStates.Sort(Function(x, y) x.Index < y.Index)
             Dim bMat = CalculateABMatFromStates(s_rest, lastStates)

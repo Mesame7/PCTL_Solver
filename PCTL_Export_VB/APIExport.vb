@@ -18,5 +18,12 @@ Namespace APIExporter
         Public Shared Function GetPMatrix() As Double()()
             Return SystemManager.GetInstance.GetPMatrixPython.Select(Function(row) row.ToArray()).ToArray()
         End Function
+        Public Shared Function GetTimes() As Dictionary(Of String, Double)
+            Return FormulaEvaluator._TimeDictionary
+        End Function
+
+        Public Shared Sub Reset()
+            SystemManager.GetInstance.Reset()
+        End Sub
     End Class
 End Namespace

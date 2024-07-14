@@ -36,8 +36,12 @@ Module Program
                     Case "time"
                         FormulaEvaluator.ShowTime = Not FormulaEvaluator.ShowTime
                         Console.WriteLine(If(FormulaEvaluator.ShowTime, "Time will show", "Time will not show"))
-
-
+                    Case "value"
+                        FormulaEvaluator.ShowValue = Not FormulaEvaluator.ShowValue
+                        Console.WriteLine(If(FormulaEvaluator.ShowValue, "Value will show", "Value will not show"))
+                    Case "dict"
+                        FormulaEvaluator.AddToDict = Not FormulaEvaluator.AddToDict
+                        Console.WriteLine(If(FormulaEvaluator.AddToDict, "Dict will be used", "Dict will not be used"))
                 End Select
             Catch ex As Exception
                 Console.WriteLine(ex.Message)
