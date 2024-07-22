@@ -5,7 +5,7 @@ Namespace Core.Model.Formula
     Public Class FormulaEvaluator
         Public Shared LastOutValue As Double 'Improve or remove
         Public Shared ShowTime As Boolean = True
-        Public Shared ShowValue As Boolean
+        Public Shared ShowValue As Boolean = True
         Public Shared AddToDict As Boolean = False
         Public Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
         Public Shared _TimeDictionary As New Dictionary(Of String, Double)
@@ -34,7 +34,7 @@ Namespace Core.Model.Formula
                 Case GetType(NextFormula)
                     outVal = EvaluateNextFormula(state, stFormula.PathFormula)(state.Index, 0)
                 Case GetType(UntilFiniteFormula)
-                    outVal = EvaluateUntillFinite(state, stFormula.PathFormula)(state.Index, 0)
+                    outVal = EvaluateUntillFinite(state, stFormula.PathFormula)
                 Case GetType(UntilInfiniteFormula)
                     outVal = EvaluateUntillInfinite(state, stFormula.PathFormula)
                 Case Else
@@ -69,6 +69,12 @@ Namespace Core.Model.Formula
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
             Dim s1 = GetS1Prism(uFormula, s0) 'TODO 
+            If s1.Contains(state) Then
+                Return 1
+            ElseIf s0.Contains(state) Then
+                Return 0
+            End If
+
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
             If AddToDict Then
 
@@ -81,11 +87,16 @@ Namespace Core.Model.Formula
             Dim out = SolveWithLU(steadyStateMat, GetConstantMatrix(s1))
             Return out(state.Index)
         End Function
-        Private Function EvaluateUntillFinite(state As State, uFormula As UntilFiniteFormula) As Double(,)
+        Private Function EvaluateUntillFinite(state As State, uFormula As UntilFiniteFormula) As Double
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.FirstFormula)) 'C
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
             Dim s1 = GetS1(uFormula) 'TODO 
+            If s1.Contains(state) Then
+                Return 1
+            ElseIf s0.Contains(state) Then
+                Return 0
+            End If
             Dim s_rest = conditionStates.Where(Function(x) Not s0.Contains(x) AndAlso Not lastStates.Contains(x)).ToList
             s_rest.Sort(Function(x, y) x.Index < y.Index)
             If AddToDict Then
@@ -101,7 +112,7 @@ Namespace Core.Model.Formula
             For i = 0 To uFormula.HopCount - 1
                 xn_1 = SolveLFP_OneIter(aMat, xn_1, bMat)
             Next
-            Return xn_1
+            Return xn_1(state.Index, 0)
         End Function
 
         Private Function SolveLFP_OneIter(A As Double(,), xn As Double(,), b As Double(,)) As Double(,)
@@ -137,28 +148,33 @@ Namespace Core.Model.Formula
 
         'Page 777
         Function GetS1(untilFormula As UntilInfiniteFormula) As List(Of State)
-            Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
-            Dim preB = GetPreStar(lastStates)
-            Dim s_Slash_preB = _MyNetwork.GetStates.Where(Function(x) Not preB.Contains(x)).ToList
-            Dim pre_s_Slash_preB = GetPreStar(s_Slash_preB)
-            Dim out = _MyNetwork.GetStates().Where(Function(x) Not pre_s_Slash_preB.Contains(x)).ToList
-            Return out
+            Return GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
+
+            'Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
+            'Dim preB = GetPreStar(lastStates)
+            'Dim s_Slash_preB = _MyNetwork.GetStates.Where(Function(x) Not preB.Contains(x)).ToList
+            'Dim pre_s_Slash_preB = GetPreStar(s_Slash_preB)
+            'Dim out = _MyNetwork.GetStates().Where(Function(x) Not pre_s_Slash_preB.Contains(x)).ToList
+            'Return out
         End Function
 
         Function GetS1Prism(untilFormula As UntilInfiniteFormula, s0 As List(Of State)) As List(Of State)
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.LastFormula))
             Dim conditionStates As List(Of State) = GetStatesFomSATVector(FindSATVector(untilFormula.FirstFormula))
+            Dim differenceStates = conditionStates.Where(Function(x) Not lastStates.Contains(x))
             Dim R As List(Of State) = s0
+
             Dim f = False
             While Not f
-                Dim R_dash = R.Union(conditionStates.Where(Function(x) Not lastStates.Contains(x)).Where(Function(x) x.GetNextStates.Any(Function(y) R.Contains(y)))).ToList 'TODO assuming next branches always have p >0
+                Dim R_dash = R.Union(differenceStates.Where(Function(x) x.GetNextStates.Any(Function(y) R.Contains(y)))).ToList 'TODO assuming next branches always have p >0
 
                 If Not (R_dash.Count <> R.Count OrElse R_dash.Any(Function(x) Not R.Contains(x)) OrElse R.Any(Function(x) Not R_dash.Contains(x))) Then
                     f = True
                 End If
                 R = R.Union(R_dash).ToList
             End While
-            Return _MyNetwork.GetStates.Where(Function(x) Not R.Contains(x)).ToList
+            Dim output = _MyNetwork.GetStates.Where(Function(x) Not R.Contains(x)).ToList
+            Return output
         End Function
         Private Function GetPreStar(states As List(Of State))
             Dim preB As New List(Of State)

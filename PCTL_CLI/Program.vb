@@ -15,13 +15,14 @@ Module Program
         CultureInfo.DefaultThreadCurrentUICulture = myCulture
 
         Dim userInput As String
-        Console.WriteLine("Type 'exit' to quit.")
+        Console.WriteLine("See All Commands with -help")
         Do
             Try
-                Console.Write("Enter a command: ")
+                Console.WriteLine("-----------------")
+                Console.Write(">>Enter a command: ")
                 userInput = Console.ReadLine()
                 Dim inputArgs = GetInputArguments(userInput)
-                Select Case inputArgs.FirstOrDefault.ToLower
+                Select Case inputArgs.FirstOrDefault.TrimStart("-").ToLower
                     Case "open"
                         OpenNetwork(inputArgs)
                     Case "new"
@@ -42,6 +43,8 @@ Module Program
                     Case "dict"
                         FormulaEvaluator.AddToDict = Not FormulaEvaluator.AddToDict
                         Console.WriteLine(If(FormulaEvaluator.AddToDict, "Dict will be used", "Dict will not be used"))
+                    Case "help"
+                        Console.WriteLine(_Help)
                 End Select
             Catch ex As Exception
                 Console.WriteLine(ex.Message)
@@ -94,5 +97,41 @@ Module Program
         Dim regex As New Regex(regexPattern)
         Return regex.Split(input)
     End Function
+
+    Const _Help As String = "--eval command enables the user to load and evaluate PCTL formulas
+from a .txt file, subsequently displaying the results of the evaluation. It
+should always be executed after executing a open command to have a model
+for which the formulas can be evaluated.
+---------------------------------------
+---------------------------------------
+--clear command clears all loaded models and formulas, effectively resetting 
+the program to its initial state. It can be called at any time with no
+dependency on any other commands.
+---------------------------------------
+---------------------------------------
+--time command can be used to toggle the display of execution time after
+evaluating a formula. It can also be called at any time with no dependency
+on any other commands.
+---------------------------------------
+---------------------------------------
+--value command can be used to toggle the display of the evaluated value
+of the top-level ProbabilityFormula. This command can be invoked at any
+time, independently of other commands.
+---------------------------------------
+---------------------------------------
+--round command can be used to set the number of digits to which final
+values of the PathFormula will be rounded. This is since a Double value
+in .NET has a precision between 15-17 bits as mentioned on the Microsoft
+Learn page [6].
+---------------------------------------
+---------------------------------------
+
+--exit command to exit.
+---------------------------------------
+---------------------------------------
+--help command displays descriptions of the previous commands along
+with examples of how to use them
+
+"
 
 End Module
