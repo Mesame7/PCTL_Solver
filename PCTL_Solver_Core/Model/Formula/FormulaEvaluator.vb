@@ -333,6 +333,8 @@ Namespace Core.Model.Formula
             Return resultMatrix
         End Function
 
+
+        '' We use this algorithm from https://www.geeksforgeeks.org/gaussian-elimination/
         Private Function SolveWithGaussian(ByVal coefficients As Double(,), ByVal constants As Double()) As Double()
             Dim num_rows As Integer = coefficients.GetLength(0)
             Dim num_cols As Integer = coefficients.GetLength(1)
