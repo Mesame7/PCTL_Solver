@@ -6,7 +6,7 @@ Namespace Core.Model.Formula
         Public Shared LastOutValue As Double 'Improve or remove
         Public Shared ShowTime As Boolean = True
         Public Shared ShowValue As Boolean = True
-        Public Shared AddToDict As Boolean = False
+        Public Shared AddToDict As Boolean = False 'Always set to false unless we are testing
         Public Shared _EvaluationDictionary As New Dictionary(Of String, Integer())
         Public Shared _TimeDictionary As New Dictionary(Of String, Double)
         Private Shared _EvalCounter As Integer = 0
@@ -69,6 +69,12 @@ Namespace Core.Model.Formula
             Dim lastStates As List(Of State) = GetStatesFomSATVector(FindSATVector(uFormula.LastFormula)) 'B
             Dim s0 = GetS0(uFormula)
             Dim s1 = GetS1Prism(uFormula, s0) 'TODO 
+            If AddToDict Then
+
+                _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
+                _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
+
+            End If
             If s1.Contains(state) Then
                 Return 1
             ElseIf s0.Contains(state) Then
@@ -77,9 +83,6 @@ Namespace Core.Model.Formula
 
             Dim sOther = _MyNetwork.GetStates.Where(Function(x) Not s0.Contains(x) AndAlso Not s1.Contains(x)).ToList
             If AddToDict Then
-
-                _EvaluationDictionary.Add("S0", GetSATVectorFromStates(s0))
-                _EvaluationDictionary.Add("S1", GetSATVectorFromStates(s1))
 
                 _EvaluationDictionary.Add("S_Unknown", GetSATVectorFromStates(s1))
             End If

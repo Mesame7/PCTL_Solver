@@ -21,6 +21,14 @@ Namespace APIExporter
         Public Shared Function GetTimes() As Dictionary(Of String, Double)
             Return FormulaEvaluator._TimeDictionary
         End Function
+        Public Shared Sub SetAddToDict(value As String)
+            Dim boolValue As Boolean
+            If (Boolean.TryParse(value, boolValue)) Then
+                FormulaEvaluator.AddToDict = boolValue
+            Else
+                Throw New Exception("Please Type True or False")
+            End If
+        End Sub
 
         Public Shared Sub Reset()
             SystemManager.GetInstance.Reset()
