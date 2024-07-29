@@ -1,11 +1,14 @@
 #pip install networkx
+#pip install pygraphviz
+#pip install numpy
+#pip install imageio
 import networkx as nx
 from networkx.drawing.nx_agraph import to_agraph
 import numpy as np
 import imageio
+from PIL import Image, ImageDraw, ImageFont
 import os
 from pctl_utils import *
-
 # for sample_size in list(range(100, 3000, 300)):
 #     x=1
 #     with open('output.txt', 'w') as file:
@@ -32,13 +35,14 @@ from pctl_utils import *
 #     formula_full_path = os.path.join("D:\Thesis\python export", "formulas.txt")
     
 APIExporter = load_pctl_export_dll()
-
-mc_file = r"D:\Thesis\marcov files\craps\craps.txt"
+APIExporter.SetAddToDict("True")
+mc_file = r"D:\Thesis\marcov files\protocol\model.txt"
 
 APIExporter.ReadNetwork(mc_file)
 
 #pctl_file = r"D:\Thesis\marcov files\craps\formulas - Copy - inf.txt"
-pctl_file = r"D:\Thesis\marcov files\craps\formulas.txt"
+#This only works if the file has only one formula and the flag FormulaEvaluator.AddToDict is set to True
+pctl_file = r"D:\Thesis\marcov files\protocol\formulas_unbound.txt"
 eval_dict_vb = APIExporter.EvaluateFormula(pctl_file)
 
 eval_dict = {key: list(eval_dict_vb[key]) for key in eval_dict_vb.Keys}
@@ -47,18 +51,15 @@ for k, v in eval_dict.items():
 N_steps = len(eval_dict.items())
 # Markov chain parameters
 node_positions = [
-    (10, 10),
-    (5, 5),
-    (7, 5),
-    (9, 5),
-    (11, 5),
-    (13, 5),
-    (15, 5),
-    (8, 0),
-    (12, 0)
+    (2, 2),
+    (2, 0),
+    (4, 0),
+    (0, 0)
 ]
 
-states = list(APIExporter.GetStates())
+states_plus_label = list(APIExporter.GetStates())
+#Uncomment the line below and change the name above to show the state name and the label
+states = [s.split(' : ')[0] for s in states_plus_label]
 p_mat_vb = APIExporter.GetPMatrix()
 Q = [[element for element in row] for row in p_mat_vb]
 
@@ -72,7 +73,7 @@ node_ind = 0
 
 # Setting up node color for each iteration     
 for k, v in eval_dict.items():
-    node_colors = ['yellow' if x == 1 else 'green' for x in v]
+    node_colors = ['yellow' if x == 0 else 'green' for x in v]
     G = nx.MultiDiGraph()
     for i in range(len(states)):
         
@@ -95,8 +96,9 @@ for k, v in eval_dict.items():
     #         my_node=A.get_node(states[node_index])
     #         my_node.attr['fillcolor']='cyan'
     A.layout()
-    A.draw(f'net_{k}.png')
-
+    legend_text = "Yellow: State = 1, Green: State = 0"
+    img_path=f'net_{k}.png'
+    A.draw(img_path)
 # Create gif with imageio
 images = []
 filenames = [f'net_{k}.png' for k in range(N_steps)]
