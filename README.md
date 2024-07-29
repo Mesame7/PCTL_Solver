@@ -24,4 +24,7 @@ Please use **`dynamic_net.py`** to dynamically create networks , formulas, evalu
 ### Graphs
 In **`draw_special_sets.py`**, user can read a model and formula file, then manually setting the location of the nodes according to the same order as in the model file.
 
+# Contact
+Please feel free to reach me on my email address [ahmed.mansour@stud.uni-due.de](mailto:ahmed.mansour@stud.uni-due.de).
+
 
