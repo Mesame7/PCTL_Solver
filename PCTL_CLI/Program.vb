@@ -98,39 +98,54 @@ Module Program
         Return regex.Split(input)
     End Function
 
-    Const _Help As String = "--eval command enables the user to load and evaluate PCTL formulas
+    Const _Help As String = "
+--open command allows the user to load a model into the program by
+specifying a .txt file containing the model.
+
+How to execute: open PATH\TO\model.txt
+---------------------------------------
+---------------------------------------
+--eval command enables the user to load and evaluate PCTL formulas
 from a .txt file, subsequently displaying the results of the evaluation. It
 should always be executed after executing a open command to have a model
 for which the formulas can be evaluated.
+
+How to execute: eval PATH\TO\formulas.txt
 ---------------------------------------
 ---------------------------------------
 --clear command clears all loaded models and formulas, effectively resetting 
 the program to its initial state. It can be called at any time with no
 dependency on any other commands.
+How to execute: clear
 ---------------------------------------
 ---------------------------------------
 --time command can be used to toggle the display of execution time after
 evaluating a formula. It can also be called at any time with no dependency
 on any other commands.
+How to execute: time
 ---------------------------------------
 ---------------------------------------
 --value command can be used to toggle the display of the evaluated value
 of the top-level ProbabilityFormula. This command can be invoked at any
 time, independently of other commands.
+How to execute: value
 ---------------------------------------
 ---------------------------------------
 --round command can be used to set the number of digits to which final
 values of the PathFormula will be rounded. This is since a Double value
 in .NET has a precision between 15-17 bits as mentioned on the Microsoft
 Learn page [6].
+How to execute: round 6
 ---------------------------------------
 ---------------------------------------
 
 --exit command to exit.
+How to execute: exit
 ---------------------------------------
 ---------------------------------------
 --help command displays descriptions of the previous commands along
 with examples of how to use them
+How to execute: help
 
 "
 
