@@ -1,14 +1,30 @@
-**
+
 # Model Checking with PCTL
 
-In my thesis project, I'm building a tool aiming to solve model checking proplems with PCTL.
+In my thesis project, I'm building a tool aiming to evaluate PCTL formulas on Markov chains.
 
-## Input Format
-Input is expected to be a text file with the following format:
+For background, please check [my thesis](Thesis/Print_29.pdf)
 
-`s1:0.1:!A,!B,C:s1-0.7,s2-0.3`
-`s2:0.9:A,!B,C:s2-0.7,s1-0.3`
+## Python Code
+Please install all the needed dependencies with:  
+* `pip install pythonnet`
+* `pip install networkx`  
+* `pip install pygraphviz`  
+* `pip install numpy`  
 
-where a column seperates state name, inital propability ,labels and branches from that state.
-So in the first line: a state with the name s1 has an initial propability of 0.1, and it has the labels !A, !B, C, and finally 2 transitions, one to itself with a propability of 0.7 and another one to s2 with a propability 0.3 
-**
+also please make sure you build the **`PCTL_Export_VB`** library and find the file:  
+
+**`PATH_TO_PROJECT\PCTL_Solver\PCTL_Export_VB\bin\Debug\net48\PCTL_Export_VB.dll`**
+
+and use its path in the function **`load_pctl_export_dll`**.
+
+### Dynamic Creation of Models
+Please use **`dynamic_net.py`** to dynamically create networks , formulas, evaluate them, and print their execution times.
+
+### Graphs
+In **`draw_special_sets.py`**, user can read a model and formula file, then manually setting the location of the nodes according to the same order as in the model file.
+
+# Contact
+Please feel free to reach me on my email address [ahmed.mansour@stud.uni-due.de](mailto:ahmed.mansour@stud.uni-due.de).
+
+
