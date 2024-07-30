@@ -1,8 +1,15 @@
+#pip install networkx
+#pip install pygraphviz
+#pip install numpy
+#pip install imageio
+#pip install matplotlib
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.polynomial import Polynomial
 
-# Data
+# Add the modelsizes and times generated from dynamic_net.py
 model_sizes = [
     100, 400, 700, 1000, 1300, 1600, 1900, 2200, 2500, 2800,
     3100, 3400, 3700, 4000, 4300, 4600, 4900, 5200, 5500, 5800
@@ -22,7 +29,8 @@ y_fit1 = cubic_fit1(x_plot)
 y_fit2 = quartic_fit2(x_plot)
 y_fit3 = quadratic_fit3(x_plot)
 
-# Plotting
+# Plot
+
 plt.figure(figsize=(12, 18))
 
 # UnboundedUntilFormula

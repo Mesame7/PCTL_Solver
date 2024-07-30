@@ -1,4 +1,7 @@
 #pip install networkx
+#pip install pygraphviz
+#pip install numpy
+#pip install imageio
 import networkx as nx
 from networkx.drawing.nx_agraph import to_agraph
 import numpy as np
@@ -25,6 +28,8 @@ for sample_size in list(range(100, 5900, 300)):
             file.write(line)
         line = f"s{sample_size-1}:0:final:s{sample_size-1}-1/2,s{sample_size-2}-1/2\n"
         file.write(line)
+
+    # Create Formulas as wished
     with open('formulas.txt', 'w') as file:
         file.write("s0 : ( Pin[1,1]{ ( true ) U ( final ) } ) \n")
         formulaBounded="s0 : ( Pin[1,1]{ ( true ) U<=sample_size ( final ) } )\n"
@@ -33,9 +38,12 @@ for sample_size in list(range(100, 5900, 300)):
         formulaNext="s0 : ( Pin[1,1]{ X ( s1 ) } ) \n"
         file.write(formulaNext)
     
+
     model_full_path = os.path.join(r"C:\Users\ahmed.mansour\Desktop\Private\python export\python export", "output.txt")
     formula_full_path = os.path.join(r"C:\Users\ahmed.mansour\Desktop\Private\python export\python export", "formulas.txt")
-    APIExporter.Reset()    
+    # Remove any loaded networks or formulas
+    APIExporter.Reset() 
+    
     APIExporter.ReadNetwork(model_full_path)
 
     APIExporter.EvaluateFormula(formula_full_path)
@@ -43,6 +51,8 @@ for sample_size in list(range(100, 5900, 300)):
     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
 my_dict=APIExporter.GetTimes()
+
+# Print the times of the formulas, then use them in 
 for key in my_dict:
     print(f"Key: {key.Key}, Value: {key.Value}")
     
