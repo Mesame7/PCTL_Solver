@@ -50,6 +50,9 @@ for k, v in eval_dict.items():
     print(f"Key: {k}, Value: {v}")
 N_steps = len(eval_dict.items())
 # Markov chain parameters
+
+#Manually set the locations
+
 node_positions = [
     (2, 2),
     (2, 0),
